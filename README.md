@@ -1,36 +1,55 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Mens Style — Landing Page
 
-## Getting Started
+Single-product Facebook-ads landing page. No database, no admin panel — every order
+is written straight to a Google Sheet, and the client manages orders (confirmation
+calls, status) directly in that Sheet.
 
-First, run the development server:
+## Editing content
+
+Everything on the page — product title/price/images/sizes/colors, spec table, size
+chart, related products, delivery zones, all copy — lives in **`data/site.json`**.
+Edit that file and redeploy; no component code needs to change for routine content
+updates. `lib/types.ts` documents the expected shape.
+
+Product photos go in `public/images/products` (flagship) and `public/images/related`
+(the "See more styles" grid); reference their paths from `data/site.json`. The repo
+ships with placeholder SVGs — swap them for real photos before launch.
+
+## Local development
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
+pnpm install
+cp .env.local.example .env.local   # fill in the values below
 pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Google Sheets setup (order storage)
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+1. Create a new Google Sheet. Add a header row:
+   `Timestamp | Product | Size | Color | Qty | Unit Price | Delivery Zone | Delivery Charge | Total | Name | Phone | Address | Status`
+2. Extensions ➔ Apps Script. Replace the contents with `google-apps-script/Code.gs`
+   from this repo.
+3. In `Code.gs`, set `SECRET` to a long random string, then run the
+   `setSharedSecret` function once (▶ in the Apps Script toolbar) — this stores the
+   secret in Script Properties so it isn't exposed anywhere else.
+4. Deploy ➔ New deployment ➔ **Web app**. Execute as **Me**, access **Anyone**.
+   Copy the deployment URL.
+5. In `.env.local` (and in Vercel's Environment Variables), set:
+   - `GOOGLE_SHEETS_WEBHOOK_URL` — the deployment URL from step 4
+   - `GOOGLE_SHEETS_WEBHOOK_SECRET` — the same string you put in `SECRET`
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Every order form submission is validated on the server, re-priced against
+`data/site.json` (so a tampered client-side price is ignored), then forwarded to
+this webhook, which appends one row per order with `Status` defaulting to
+`Pending`. Update the `Status` column by hand as you confirm/ship each order.
 
-## Learn More
+## Optional: Meta (Facebook) Pixel
 
-To learn more about Next.js, take a look at the following resources:
+Set `NEXT_PUBLIC_FB_PIXEL_ID` to enable it — `PageView` fires automatically, and a
+`Lead` event fires with the order total when a customer completes checkout. Leave it
+blank to skip the pixel entirely.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Deploy
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Push to GitHub, import the repo in Vercel, paste in the env vars above, deploy.
+# mens-style

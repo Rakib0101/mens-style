@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="600" height="750" viewBox="0 0 600 750">
+  <rect width="600" height="750" fill="#2b2620"/>
+  <rect x="0.5" y="0.5" width="599" height="749" fill="none" stroke="#e9e9ec" stroke-opacity="0.15" stroke-width="1"/>
+  <text x="50%" y="50%" fill="#e9e9ec" font-family="Arial, sans-serif" font-size="26" text-anchor="middle" dominant-baseline="middle" opacity="0.8">Loose Fit Shirt</text>
+</svg>
