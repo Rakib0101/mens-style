@@ -109,12 +109,12 @@ export default function OrderExperience() {
 
 	return (
 		<>
-			<section id="related" className="bg-surface-muted py-16 sm:py-24">
+			<section id="related" className="py-16 sm:py-24">
 				<div className="container-page text-center">
-					<p className="text-sm font-semibold uppercase tracking-wide text-brand">
+					<p className="text-2xl font-semibold uppercase tracking-wide text-brand">
 						{content.relatedSection.eyebrow}
 					</p>
-					<h2 className="mt-2 text-2xl font-bold sm:text-3xl">
+					<h2 className="mt-3 text-2xl font-bold sm:text-3xl md:text-4xl text-ink">
 						{content.relatedSection.title}
 					</h2>
 
@@ -124,7 +124,7 @@ export default function OrderExperience() {
 								key={product.slug}
 								type="button"
 								onClick={() => selectProduct(product)}
-								className={`overflow-hidden rounded-lg border bg-white text-left transition-colors ${
+								className={`overflow-hidden rounded-2xl border bg-white text-left transition-colors ${
 									selected.slug === product.slug
 										? "border-brand"
 										: "border-surface-line hover:border-ink/30"
@@ -138,27 +138,29 @@ export default function OrderExperience() {
 									className="aspect-4/5 w-full object-cover"
 								/>
 								<div className="p-3">
-									<p className="line-clamp-2 text-sm font-medium text-ink">
+									<p className="line-clamp-2 text-xl font-medium text-ink">
 										{product.title}
 									</p>
-									<div className="mt-1 flex items-center gap-2">
-										<span className="text-sm font-semibold text-brand">
-											{formatPrice(product.price)}
-										</span>
-										{product.comparePrice ? (
-											<span className="text-xs text-ink/40 line-through">
-												{formatPrice(product.comparePrice)}
+									<div className="mt-1 flex justify-between items-center gap-2">
+										<div className="mt-1 flex items-center gap-2">
+											<span className="text-xl font-semibold text-brand">
+												{formatPrice(product.price)}
 											</span>
-										) : null}
-									</div>
-									<div className="mt-2 flex gap-1">
-										{product.colors.map((c) => (
-											<span
-												key={c.name}
-												className="h-3 w-3 rounded-full border border-black/10"
-												style={{ background: c.hex }}
-											/>
-										))}
+											{product.comparePrice ? (
+												<span className="text-2xl text-ink/40 line-through">
+													{formatPrice(product.comparePrice)}
+												</span>
+											) : null}
+										</div>
+										<div className="mt-2 flex gap-1">
+											{product.colors.map((c) => (
+												<span
+													key={c.name}
+													className="h-3 w-3 rounded-full border border-black/10"
+													style={{ background: c.hex }}
+												/>
+											))}
+										</div>
 									</div>
 								</div>
 							</button>
@@ -167,7 +169,7 @@ export default function OrderExperience() {
 				</div>
 			</section>
 
-			<section id="order" className="scroll-mt-20 py-16 sm:py-24">
+			<section id="order" className="bg-[#F7F7F5] scroll-mt-20 py-16 sm:py-24">
 				<div className="container-page">
 					<div className="text-center">
 						<p className="text-sm font-semibold uppercase tracking-wide text-brand">
@@ -352,7 +354,7 @@ export default function OrderExperience() {
 							</div>
 						</div>
 
-						<div className="rounded-lg border border-surface-line bg-surface-muted p-5 lg:sticky lg:top-24">
+						<div className="rounded-lg border border-surface-line bg-white p-5 lg:sticky lg:top-24">
 							<p className="font-semibold text-ink">{T.summaryTitle}</p>
 
 							<div className="mt-4 space-y-2 text-sm">
