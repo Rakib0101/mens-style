@@ -10,6 +10,7 @@ import { useState, type FormEvent } from "react";
 type BuyableProduct = {
 	slug: string;
 	title: string;
+	subtitle?: string;
 	price: number;
 	comparePrice?: number | null;
 	images: string[];
@@ -20,10 +21,74 @@ type BuyableProduct = {
 
 const FLAGSHIP = content.flagshipProduct as BuyableProduct;
 const RELATED = content.relatedProducts as BuyableProduct[];
-const ZONES = content.deliveryZones;
-const T = content.orderSection;
-
 const BD_PHONE_RE = /^01[3-9]\d{8}$/;
+
+const DISTRICTS = [
+	"ঢাকা",
+	"গাজীপুর",
+	"নারায়ণগঞ্জ",
+	"চট্টগ্রাম",
+	"সিলেট",
+	"রাজশাহী",
+	"খুলনা",
+	"বরিশাল",
+	"রংপুর",
+	"ময়মনসিংহ",
+	"কুমিল্লা",
+	"ফেনী",
+	"ব্রাহ্মণবাড়িয়া",
+	"নোয়াখালী",
+	"চাঁদপুর",
+	"লক্ষ্মীপুর",
+	"কক্সবাজার",
+	"বান্দরবান",
+	"রাঙ্গামাটি",
+	"খাগড়াছড়ি",
+	"হবিগঞ্জ",
+	"মৌলভীবাজার",
+	"সুনামগঞ্জ",
+	"নরসিংদী",
+	"মুন্সীগঞ্জ",
+	"মানিকগঞ্জ",
+	"টাঙ্গাইল",
+	"কিশোরগঞ্জ",
+	"নেত্রকোণা",
+	"শেরপুর",
+	"জামালপুর",
+	"ফরিদপুর",
+	"মাদারীপুর",
+	"শরীয়তপুর",
+	"রাজবাড়ী",
+	"গোপালগঞ্জ",
+	"যশোর",
+	"সাতক্ষীরা",
+	"মাগুরা",
+	"নড়াইল",
+	"বাগেরহাট",
+	"ঝিনাইদহ",
+	"কুষ্টিয়া",
+	"চুয়াডাঙ্গা",
+	"মেহেরপুর",
+	"পাবনা",
+	"সিরাজগঞ্জ",
+	"বগুড়া",
+	"জয়পুরহাট",
+	"নাটোর",
+	"নওগাঁ",
+	"চাঁপাইনবাবগঞ্জ",
+	"দিনাজপুর",
+	"কুড়িগ্রাম",
+	"গাইবান্ধা",
+	"লালমনিরহাট",
+	"নীলফামারী",
+	"পঞ্চগড়",
+	"ঠাকুরগাঁও",
+	"ভোলা",
+	"পটুয়াখালী",
+	"ঝালকাঠি",
+	"পিরোজপুর",
+	"বরগুনা",
+];
 
 type FbqFn = (...args: unknown[]) => void;
 
@@ -36,12 +101,13 @@ function trackLead(value: number) {
 export default function OrderExperience() {
 	const router = useRouter();
 	const [selected, setSelected] = useState<BuyableProduct>(FLAGSHIP);
-	const [size, setSize] = useState(FLAGSHIP.sizes[0] ?? "");
-	const [color, setColor] = useState(FLAGSHIP.colors[0]?.name ?? "");
+	const [size, setSize] = useState(FLAGSHIP.sizes[0] ?? "M");
+	const [color, setColor] = useState(FLAGSHIP.colors[0]?.name ?? "কালো");
 	const [qty, setQty] = useState(1);
-	const [zoneIndex, setZoneIndex] = useState(0);
+	const [district, setDistrict] = useState("");
 	const [name, setName] = useState("");
 	const [phone, setPhone] = useState("");
+	const [email, setEmail] = useState("");
 	const [address, setAddress] = useState("");
 	const [honeypot, setHoneypot] = useState("");
 	const [status, setStatus] = useState<"idle" | "submitting" | "error">("idle");
@@ -49,24 +115,35 @@ export default function OrderExperience() {
 
 	function selectProduct(product: BuyableProduct) {
 		setSelected(product);
-		setSize(product.sizes[0] ?? "");
-		setColor(product.colors[0]?.name ?? "");
+		setSize(product.sizes[0] ?? "M");
+		setColor(product.colors[0]?.name ?? "কালো");
 		setQty(1);
 		document
 			.getElementById("order")
 			?.scrollIntoView({ behavior: "smooth", block: "start" });
 	}
 
-	const zone = ZONES[zoneIndex];
+	// Delivery charge is 80 by default (Dhaka), or 120 outside Dhaka
+	const deliveryCharge = district && district !== "ঢাকা" ? 120 : 80;
 	const subtotal = selected.price * qty;
-	const total = subtotal + zone.charge;
+	const total = subtotal + deliveryCharge;
+
+	const isFormFilled = Boolean(
+		name.trim() && phone.trim() && address.trim() && district.trim(),
+	);
 
 	async function handleSubmit(e: FormEvent<HTMLFormElement>) {
 		e.preventDefault();
 		if (honeypot) return;
 
-		if (!name.trim() || !BD_PHONE_RE.test(phone.trim()) || !address.trim()) {
-			setErrorMsg("সব তথ্য সঠিকভাবে পূরণ করুন (সঠিক মোবাইল নম্বর দিন)।");
+		if (!name.trim() || !phone.trim() || !address.trim() || !district.trim()) {
+			setErrorMsg("অনুগ্রহ করে সব প্রয়োজনীয় তথ্য পূরণ করুন।");
+			setStatus("error");
+			return;
+		}
+
+		if (!BD_PHONE_RE.test(phone.trim())) {
+			setErrorMsg("সঠিক ১১ ডিজিটের মোবাইল নম্বর দিন (যেমন: 017XXXXXXXX)।");
 			setStatus("error");
 			return;
 		}
@@ -81,12 +158,12 @@ export default function OrderExperience() {
 			color,
 			qty,
 			unitPrice: selected.price,
-			deliveryZoneLabel: zone.label,
-			deliveryCharge: zone.charge,
+			deliveryZoneLabel: district === "ঢাকা" ? "ঢাকা" : "ঢাকার বাইরে",
+			deliveryCharge,
 			totalPrice: total,
 			name: name.trim(),
 			phone: phone.trim(),
-			address: address.trim(),
+			address: `${address.trim()}, জেলা: ${district}${email.trim() ? ` (ইমেইল: ${email.trim()})` : ""}`,
 			honeypot,
 		};
 
@@ -109,25 +186,26 @@ export default function OrderExperience() {
 
 	return (
 		<>
-			<section id="related" className="py-16 sm:py-24">
+			{/* Related styles section */}
+			<section id="related" className="py-16 sm:py-20 bg-white">
 				<div className="container-page text-center">
-					<p className="text-2xl font-semibold uppercase tracking-wide text-brand">
+					<p className="text-sm font-semibold uppercase tracking-wide text-brand">
 						{content.relatedSection.eyebrow}
 					</p>
-					<h2 className="mt-3 text-2xl font-bold sm:text-3xl md:text-4xl text-ink">
+					<h2 className="mt-2 text-2xl font-bold sm:text-3xl text-ink">
 						{content.relatedSection.title}
 					</h2>
 
-					<div className="mt-10 grid grid-cols-2 gap-4 text-left lg:grid-cols-4">
+					<div className="mt-8 grid grid-cols-2 gap-4 text-left lg:grid-cols-4">
 						{RELATED.map((product) => (
 							<button
 								key={product.slug}
 								type="button"
 								onClick={() => selectProduct(product)}
-								className={`overflow-hidden rounded-2xl border bg-white text-left transition-colors ${
+								className={`overflow-hidden rounded-xl border bg-white text-left transition-all ${
 									selected.slug === product.slug
-										? "border-brand"
-										: "border-surface-line hover:border-ink/30"
+										? "border-brand ring-2 ring-brand/20"
+										: "border-[#E5E5E5] hover:border-ink/40"
 								}`}
 							>
 								<Image
@@ -138,21 +216,14 @@ export default function OrderExperience() {
 									className="aspect-4/5 w-full object-cover"
 								/>
 								<div className="p-3">
-									<p className="line-clamp-2 text-xl font-medium text-ink">
+									<p className="line-clamp-2 text-base font-bold text-ink">
 										{product.title}
 									</p>
-									<div className="mt-1 flex justify-between items-center gap-2">
-										<div className="mt-1 flex items-center gap-2">
-											<span className="text-xl font-semibold text-brand">
-												{formatPrice(product.price)}
-											</span>
-											{product.comparePrice ? (
-												<span className="text-2xl text-ink/40 line-through">
-													{formatPrice(product.comparePrice)}
-												</span>
-											) : null}
-										</div>
-										<div className="mt-2 flex gap-1">
+									<div className="mt-1 flex items-center justify-between gap-2">
+										<span className="text-lg font-bold text-brand">
+											{formatPrice(product.price)}
+										</span>
+										<div className="flex gap-1">
 											{product.colors.map((c) => (
 												<span
 													key={c.name}
@@ -169,177 +240,256 @@ export default function OrderExperience() {
 				</div>
 			</section>
 
-			<section id="order" className="bg-[#F7F7F5] scroll-mt-20 py-16 sm:py-24">
+			{/* 100% Figma Match Checkout Form Section */}
+			<section id="order" className="scroll-mt-10 py-10 sm:py-16 bg-white">
 				<div className="container-page">
-					<div className="text-center">
-						<p className="text-sm font-semibold uppercase tracking-wide text-brand">
-							{T.eyebrow}
-						</p>
-						<h2 className="mt-2 text-2xl font-bold sm:text-3xl">{T.title}</h2>
-						<p className="mx-auto mt-2 max-w-md text-ink/60">{T.subtitle}</p>
-					</div>
-
 					<form
 						onSubmit={handleSubmit}
-						className="mt-10 grid gap-6 lg:grid-cols-3 lg:items-start"
+						className="grid grid-cols-1 lg:grid-cols-[1fr_380px] gap-6 items-start"
 					>
-						<div className="rounded-lg border border-surface-line bg-white p-5 lg:col-span-2">
-							<p className="text-xs font-semibold uppercase tracking-wide text-ink/50">
-								{T.yourProductLabel}
-							</p>
+						{/* Left Column: 2 Cards */}
+						<div className="space-y-5">
+							{/* Card 1: আপনার প্রোডাক্ট */}
+							<div className="bg-white border border-[#E5E5E5] p-6 sm:p-7">
+								<h2 className="text-xl font-bold text-[#141414] mb-6">
+									আপনার প্রোডাক্ট
+								</h2>
 
-							<div className="mt-3 flex gap-4">
-								<Image
-									src={selected.images[0]}
-									alt={selected.title}
-									width={160}
-									height={200}
-									className="aspect-4/5 w-24 rounded-md object-cover sm:w-32"
-								/>
-								<div>
-									<h3 className="font-semibold text-ink">{selected.title}</h3>
-									{selected.rating ? (
-										<p className="mt-1 text-sm text-ink/60">
-											★ {selected.rating.value} ({selected.rating.count})
-										</p>
-									) : null}
-									<div className="mt-1 flex items-center gap-2">
-										<span className="font-semibold text-brand">
-											{formatPrice(selected.price)}
+								<div className="grid grid-cols-1 md:grid-cols-2 gap-6 lg:gap-8 items-start">
+									{/* Product Main Showcase Image */}
+									<div className="relative aspect-[472/567] w-full overflow-hidden bg-surface-muted">
+										<Image
+											src={selected.images[0] || "/images/products/t-shirt/1.png"}
+											alt={selected.title}
+											fill
+											sizes="(max-width: 768px) 100vw, 480px"
+											className="object-cover object-top"
+											priority
+										/>
+									</div>
+
+									{/* Product Details & Selection Options */}
+									<div>
+										<span className="inline-block bg-[#FDEFED] text-[#D4003D] text-xs font-semibold px-2.5 py-1 mb-2.5">
+											নতুন কালেকশন
 										</span>
-										{selected.comparePrice ? (
-											<span className="text-sm text-ink/40 line-through">
-												{formatPrice(selected.comparePrice)}
+
+										<h3 className="text-2xl sm:text-3xl font-bold text-[#141414] leading-tight">
+											{selected.title}
+										</h3>
+
+										<p className="mt-2 text-sm text-[#666666] leading-relaxed">
+											{selected.subtitle || content.flagshipProduct.subtitle}
+										</p>
+
+										{/* Rating */}
+										<div className="mt-3.5 flex items-center gap-2 text-sm">
+											<div className="flex text-[#F59E0B] tracking-tight">
+												★★★★★
+											</div>
+											<span className="font-bold text-[#141414]">৪.৯</span>
+											<span className="text-[#737373] text-xs font-normal">
+												(২৮ রিভিউ)
 											</span>
-										) : null}
+										</div>
+
+										{/* Price */}
+										<div className="mt-4 flex items-baseline gap-3">
+											<span className="text-3xl font-bold text-[#E21C34]">
+												৳{selected.price.toLocaleString("en-US")}
+											</span>
+											{selected.comparePrice ? (
+												<span className="text-base text-[#8C8C8C] line-through">
+													৳{selected.comparePrice.toLocaleString("en-US")}
+												</span>
+											) : null}
+										</div>
+
+										{/* Color Selector */}
+										<div className="mt-5">
+											<p className="text-xs font-semibold text-[#666666] mb-2.5">
+												রঙ নির্বাচন করুন
+											</p>
+											<div className="flex items-center gap-3">
+												{selected.colors.map((c) => (
+													<button
+														key={c.name}
+														type="button"
+														onClick={() => setColor(c.name)}
+														className={`relative h-9 w-9 rounded-full transition-all flex items-center justify-center ${
+															color === c.name
+																? "ring-2 ring-[#E21C34] ring-offset-2"
+																: "hover:scale-105"
+														}`}
+														aria-label={c.name}
+													>
+														<span
+															className="h-full w-full rounded-full border border-black/10"
+															style={{ backgroundColor: c.hex }}
+														/>
+													</button>
+												))}
+											</div>
+										</div>
+
+										{/* Size Selector */}
+										<div className="mt-5">
+											<p className="text-xs font-semibold text-[#666666] mb-2.5">
+												সাইজ নির্বাচন করুন{" "}
+												<span className="text-[#E21C34]">*</span>
+											</p>
+											<div className="flex items-center gap-2.5">
+												{selected.sizes.map((s) => (
+													<button
+														key={s}
+														type="button"
+														onClick={() => setSize(s)}
+														className={`h-12 w-12 sm:w-14 rounded-xl border text-sm font-semibold transition-all ${
+															size === s
+																? "border-[#141414] bg-white text-[#141414] ring-1 ring-[#141414]"
+																: "border-[#E5E5E5] bg-white text-[#141414] hover:border-[#141414]/40"
+														}`}
+													>
+														{s}
+													</button>
+												))}
+											</div>
+										</div>
+
+										{/* Quantity Selector */}
+										<div className="mt-5 flex items-center gap-4">
+											<span className="text-xs font-semibold text-[#666666]">
+												পরিমাণ
+											</span>
+											<div className="flex items-center justify-between w-36 h-11 px-3.5 rounded-xl border border-[#E5E5E5] bg-white">
+												<button
+													type="button"
+													onClick={() => setQty((q) => Math.max(1, q - 1))}
+													className="text-lg text-[#666666] hover:text-[#141414] transition-colors p-1"
+													aria-label="Decrease quantity"
+												>
+													−
+												</button>
+												<span className="font-bold text-sm text-[#141414]">
+													{qty}
+												</span>
+												<button
+													type="button"
+													onClick={() => setQty((q) => Math.min(10, q + 1))}
+													className="text-lg text-[#666666] hover:text-[#141414] transition-colors p-1"
+													aria-label="Increase quantity"
+												>
+													+
+												</button>
+											</div>
+										</div>
 									</div>
 								</div>
 							</div>
 
-							<div className="mt-5">
-								<p className="text-sm font-medium text-ink">{T.colorLabel}</p>
-								<div className="mt-2 flex gap-2">
-									{selected.colors.map((c) => (
-										<button
-											key={c.name}
-											type="button"
-											onClick={() => setColor(c.name)}
-											aria-label={c.name}
-											className={`h-8 w-8 rounded-full border-2 ${
-												color === c.name ? "border-brand" : "border-transparent"
-											}`}
-											style={{ background: c.hex }}
-										/>
-									))}
-								</div>
-							</div>
+							{/* Card 2: আপনার তথ্য */}
+							<div className="bg-white border border-[#E5E5E5] p-6 sm:p-7">
+								<h2 className="text-xl font-bold text-[#141414] mb-5">
+									আপনার তথ্য
+								</h2>
 
-							<div className="mt-5">
-								<p className="text-sm font-medium text-ink">{T.sizeLabel}</p>
-								<div className="mt-2 flex flex-wrap gap-2">
-									{selected.sizes.map((s) => (
-										<button
-											key={s}
-											type="button"
-											onClick={() => setSize(s)}
-											className={`rounded-md border px-4 py-1.5 text-sm font-medium ${
-												size === s
-													? "border-brand bg-brand text-white"
-													: "border-surface-line text-ink/70"
-											}`}
-										>
-											{s}
-										</button>
-									))}
-								</div>
-							</div>
-
-							<div className="mt-5">
-								<p className="text-sm font-medium text-ink">{T.qtyLabel}</p>
-								<div className="mt-2 inline-flex items-center rounded-md border border-surface-line">
-									<button
-										type="button"
-										onClick={() => setQty((q) => Math.max(1, q - 1))}
-										className="px-3 py-1.5 text-ink/70"
-										aria-label="decrease quantity"
-									>
-										−
-									</button>
-									<span className="w-10 text-center text-sm font-medium">
-										{qty}
-									</span>
-									<button
-										type="button"
-										onClick={() => setQty((q) => Math.min(10, q + 1))}
-										className="px-3 py-1.5 text-ink/70"
-										aria-label="increase quantity"
-									>
-										+
-									</button>
-								</div>
-							</div>
-
-							<div className="mt-6 border-t border-surface-line pt-6">
-								<p className="text-sm font-semibold text-ink">{T.formTitle}</p>
-
-								<div className="mt-3 grid gap-4">
-									<label className="block">
-										<span className="text-sm text-ink/70">{T.nameLabel}</span>
+								<div className="space-y-4">
+									{/* Name field */}
+									<div>
+										<label className="block text-xs font-semibold text-[#333333] mb-1.5">
+											আপনার নাম <span className="text-[#E21C34]">*</span>
+										</label>
 										<input
 											required
+											type="text"
 											value={name}
 											onChange={(e) => setName(e.target.value)}
-											placeholder={T.namePlaceholder}
-											className="mt-1 w-full rounded-md border border-surface-line px-3 py-2.5 text-sm outline-none focus:border-brand"
+											placeholder="আপনার সম্পূর্ণ নাম লিখুন"
+											className="w-full h-12 px-3.5 rounded-none border border-[#E5E5E5] text-sm text-[#141414] placeholder-[#9CA3AF] outline-none focus:border-[#141414] transition-colors"
 										/>
-									</label>
+									</div>
 
-									<div className="grid gap-4 sm:grid-cols-2">
-										<label className="block">
-											<span className="text-sm text-ink/70">
-												{T.phoneLabel}
-											</span>
+									{/* Phone & Email fields */}
+									<div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+										<div>
+											<label className="block text-xs font-semibold text-[#333333] mb-1.5">
+												মোবাইল নম্বর <span className="text-[#E21C34]">*</span>
+											</label>
 											<input
 												required
 												type="tel"
 												inputMode="numeric"
 												value={phone}
 												onChange={(e) => setPhone(e.target.value)}
-												placeholder={T.phonePlaceholder}
-												className="mt-1 w-full rounded-md border border-surface-line px-3 py-2.5 text-sm outline-none focus:border-brand"
+												placeholder="01XXXXXXXXX"
+												className="w-full h-12 px-3.5 rounded-none border border-[#E5E5E5] text-sm text-[#141414] placeholder-[#9CA3AF] outline-none focus:border-[#141414] transition-colors"
 											/>
-										</label>
+										</div>
 
-										<label className="block">
-											<span className="text-sm text-ink/70">{T.zoneLabel}</span>
+										<div>
+											<label className="block text-xs font-semibold text-[#333333] mb-1.5">
+												ইমেইল
+											</label>
+											<input
+												type="email"
+												value={email}
+												onChange={(e) => setEmail(e.target.value)}
+												placeholder="আপনার ইমেইল ঠিকানা"
+												className="w-full h-12 px-3.5 rounded-none border border-[#E5E5E5] text-sm text-[#141414] placeholder-[#9CA3AF] outline-none focus:border-[#141414] transition-colors"
+											/>
+										</div>
+									</div>
+
+									{/* Full Address field */}
+									<div>
+										<label className="block text-xs font-semibold text-[#333333] mb-1.5">
+											সম্পূর্ণ ঠিকানা <span className="text-[#E21C34]">*</span>
+										</label>
+										<textarea
+											required
+											rows={2}
+											value={address}
+											onChange={(e) => setAddress(e.target.value)}
+											placeholder="বাসা/রোড, এলাকা, থানা ও জেলা লিখুন"
+											className="w-full py-3 px-3.5 rounded-none border border-[#E5E5E5] text-sm text-[#141414] placeholder-[#9CA3AF] outline-none focus:border-[#141414] transition-colors resize-none"
+										/>
+									</div>
+
+									{/* District Select field */}
+									<div>
+										<label className="block text-xs font-semibold text-[#333333] mb-1.5">
+											জেলা <span className="text-[#E21C34]">*</span>
+										</label>
+										<div className="relative">
 											<select
-												value={zoneIndex}
-												onChange={(e) => setZoneIndex(Number(e.target.value))}
-												className="mt-1 w-full rounded-md border border-surface-line bg-white px-3 py-2.5 text-sm outline-none focus:border-brand"
+												required
+												value={district}
+												onChange={(e) => setDistrict(e.target.value)}
+												className={`w-full h-12 px-3.5 pr-10 rounded-none border border-[#E5E5E5] text-sm bg-white outline-none focus:border-[#141414] transition-colors appearance-none cursor-pointer ${
+													!district ? "text-[#9CA3AF]" : "text-[#141414]"
+												}`}
 											>
-												{ZONES.map((z, i) => (
-													<option key={z.label} value={i}>
-														{z.label} ({formatPrice(z.charge)})
+												<option value="" disabled>
+													জেলা নির্বাচন করুন
+												</option>
+												{DISTRICTS.map((d) => (
+													<option key={d} value={d} className="text-[#141414]">
+														{d}
 													</option>
 												))}
 											</select>
-										</label>
+											<div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3.5 text-[#666666]">
+												<svg
+													className="w-4 h-4 fill-current"
+													viewBox="0 0 20 20"
+												>
+													<path d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" />
+												</svg>
+											</div>
+										</div>
 									</div>
 
-									<label className="block">
-										<span className="text-sm text-ink/70">
-											{T.addressLabel}
-										</span>
-										<textarea
-											required
-											rows={3}
-											value={address}
-											onChange={(e) => setAddress(e.target.value)}
-											placeholder={T.addressPlaceholder}
-											className="mt-1 w-full rounded-md border border-surface-line px-3 py-2.5 text-sm outline-none focus:border-brand"
-										/>
-									</label>
-
+									{/* Honeypot anti-spam field */}
 									<input
 										type="text"
 										name="company"
@@ -354,45 +504,115 @@ export default function OrderExperience() {
 							</div>
 						</div>
 
-						<div className="rounded-lg border border-surface-line bg-white p-5 lg:sticky lg:top-24">
-							<p className="font-semibold text-ink">{T.summaryTitle}</p>
+						{/* Right Column: Card 3 - আপনার অর্ডার */}
+						<div className="bg-white border border-[#E5E5E5] p-6 sm:p-7 lg:sticky lg:top-24">
+							<h2 className="text-lg font-bold text-[#141414] pb-4 border-b border-[#E5E5E5]">
+								আপনার অর্ডার
+							</h2>
 
-							<div className="mt-4 space-y-2 text-sm">
-								<div className="flex justify-between text-ink/70">
-									<span>{T.subtotalLabel}</span>
-									<span>{formatPrice(subtotal)}</span>
+							{/* Product row */}
+							<div className="py-4 flex items-center gap-3.5">
+								<div className="relative w-14 h-14 shrink-0 rounded-lg overflow-hidden bg-surface-muted">
+									<Image
+										src="/images/products/t-shirt/banner.png"
+										alt={selected.title}
+										fill
+										sizes="56px"
+										className="object-cover"
+									/>
 								</div>
-								<div className="flex justify-between text-ink/70">
-									<span>{T.deliveryLabel}</span>
-									<span>{formatPrice(zone.charge)}</span>
-								</div>
-								<div className="flex justify-between border-t border-surface-line pt-2 font-semibold text-ink">
-									<span>{T.totalLabel}</span>
-									<span>{formatPrice(total)}</span>
+								<div className="min-w-0 flex-1">
+									<p className="text-sm font-bold text-[#141414] truncate">
+										{selected.title}
+									</p>
+									<p className="text-xs text-[#737373] mt-0.5">{color || "কালো"}</p>
 								</div>
 							</div>
 
-							<p className="mt-4 rounded-md border border-brand/30 bg-brand/5 px-3 py-2 text-xs text-brand">
-								{T.codNote}
-							</p>
+							{/* Price breakdown */}
+							<div className="space-y-3 pt-2 pb-4 text-sm">
+								<div className="flex justify-between items-center text-[#4B5563]">
+									<span>প্রোডাক্ট মূল্য</span>
+									<span className="font-bold text-[#141414]">
+										৳{subtotal.toLocaleString("en-US")}
+									</span>
+								</div>
+								<div className="flex justify-between items-center text-[#4B5563]">
+									<span>পরিমাণ</span>
+									<span className="font-bold text-[#141414]">× {qty}</span>
+								</div>
+								<div className="flex justify-between items-center text-[#4B5563]">
+									<span>ডেলিভারি চার্জ</span>
+									<span className="font-bold text-[#141414]">
+										৳{deliveryCharge}
+									</span>
+								</div>
+							</div>
 
-							{status === "error" && errorMsg ? (
-								<p className="mt-3 text-xs text-brand" role="alert">
+							{/* Total */}
+							<div className="pt-4 pb-5 border-t border-[#E5E5E5] flex justify-between items-center">
+								<span className="text-lg font-bold text-[#141414]">মোট</span>
+								<span className="text-2xl font-bold text-[#E21C34]">
+									৳{total.toLocaleString("en-US")}
+								</span>
+							</div>
+
+							{/* Cash on Delivery option box */}
+							<div className="border-2 border-[#E21C34] rounded-none p-3.5 bg-white mb-5">
+								<div className="flex items-center gap-2.5">
+									<div className="w-4 h-4 rounded-full border-2 border-[#E21C34] flex items-center justify-center shrink-0">
+										<div className="w-2 h-2 rounded-full bg-[#E21C34]" />
+									</div>
+									<span className="text-sm font-bold text-[#141414]">
+										ক্যাশ অন ডেলিভারি
+									</span>
+								</div>
+								<p className="mt-1 ml-6.5 text-xs text-[#737373]">
+									পণ্য হাতে পাওয়ার পর মূল্য পরিশোধ করুন।
+								</p>
+							</div>
+
+							{errorMsg ? (
+								<p className="mb-4 text-xs text-[#E21C34] font-medium" role="alert">
 									{errorMsg}
 								</p>
 							) : null}
 
+							{/* Submit Button */}
 							<button
 								type="submit"
 								disabled={status === "submitting"}
-								className="mt-4 w-full rounded-full bg-brand py-3 text-sm font-semibold text-white transition-colors hover:bg-brand-dark disabled:opacity-60"
+								className={`w-full py-3.5 font-bold text-base text-white rounded-none transition-all ${
+									isFormFilled
+										? "bg-[#E21C34] hover:bg-[#C81730] shadow-md cursor-pointer"
+										: "bg-[#BCBCBC] hover:bg-[#A8A8A8] cursor-pointer"
+								} disabled:opacity-60`}
 							>
-								{status === "submitting" ? T.submittingLabel : T.submitLabel}
+								{status === "submitting"
+									? "অর্ডার হচ্ছে..."
+									: `অর্ডার নিশ্চিত করুন — ৳${total.toLocaleString("en-US")}`}
 							</button>
 
-							<p className="mt-3 text-center text-xs text-ink/50">
-								{T.afterSubmitNote}
-							</p>
+							{/* Trust & Delivery badge */}
+							<div className="mt-4 text-center">
+								<div className="flex items-center justify-center gap-1.5 text-xs text-[#4B5563]">
+									<svg
+										className="w-4 h-4 text-[#10B981] shrink-0"
+										viewBox="0 0 20 20"
+										fill="currentColor"
+									>
+										<path
+											fillRule="evenodd"
+											d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+											clipRule="evenodd"
+										/>
+									</svg>
+									<span>আপনার তথ্য নিরাপদ ও সুরক্ষিত</span>
+								</div>
+								<p className="mt-1 text-xs text-[#9CA3AF]">
+									সাধারণত ২-৪ কার্যদিবসের মধ্যে ডেলিভারি।
+								</p>
+							</div>
 						</div>
 					</form>
 				</div>
