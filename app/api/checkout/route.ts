@@ -88,14 +88,25 @@ export async function POST(request: Request) {
       }),
     });
 
-    const data: { status?: string } | null = await res.json().catch(() => null);
+    const rawText = await res.text();
+    let data: { status?: string; message?: string } | null = null;
+    try {
+      data = JSON.parse(rawText);
+    } catch {
+      // not json (e.g. Google html error page)
+    }
+
     if (!res.ok || data?.status !== "success") {
-      throw new Error("Sheet webhook rejected the order");
+      console.error(
+        `Checkout: Google Sheet rejected with HTTP ${res.status}. Body:`,
+        data || rawText.substring(0, 300),
+      );
+      throw new Error(data?.message || `Webhook rejected with HTTP ${res.status}`);
     }
   } catch (err) {
     console.error("Checkout: failed to write order to Google Sheet:", err);
     return Response.json(
-      { error: "Failed to place order. Please try again." },
+      { error: "Failed to place order. Please check Google Sheets webhook." },
       { status: 500 },
     );
   }

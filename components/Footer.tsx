@@ -15,7 +15,12 @@ export default function Footer() {
 		<footer className="bg-ink text-white">
 			<div className="container-page flex flex-col gap-8 py-12 sm:flex-row sm:items-center sm:justify-between">
 				<div className="flex items-center gap-2">
-					<Image src="/images/footer-logo.png" alt="" width={104} height={80} />
+					<Image
+						src="/images/footer-logo.png"
+						alt="Mens Style Logo"
+						width={104}
+						height={80}
+					/>
 				</div>
 
 				<div className="flex flex-col gap-1 text-sm text-white/70 sm:items-end">

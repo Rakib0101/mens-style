@@ -12,20 +12,31 @@
  *    secret into GOOGLE_SHEETS_WEBHOOK_SECRET, in the Next.js app's env vars.
  */
 
-var SECRET = "REPLACE_WITH_A_LONG_RANDOM_STRING";
+var SECRET = "mens_style_secret_key_2026";
 
 function setSharedSecret() {
   PropertiesService.getScriptProperties().setProperty("SHARED_SECRET", SECRET);
+}
+
+// Allows checking if the webhook is accessible in any browser tab
+function doGet(e) {
+  return ContentService
+    .createTextOutput(JSON.stringify({ 
+      status: "active", 
+      message: "Mens Style Order Webhook is running successfully!" 
+    }))
+    .setMimeType(ContentService.MimeType.JSON);
 }
 
 function doPost(e) {
   try {
     var data = JSON.parse(e.postData.contents);
 
-    var expected = PropertiesService.getScriptProperties().getProperty("SHARED_SECRET");
+    // Checks script properties first; falls back to SECRET variable if setSharedSecret was not run
+    var expected = PropertiesService.getScriptProperties().getProperty("SHARED_SECRET") || SECRET;
     if (!expected || data.secret !== expected) {
       return ContentService
-        .createTextOutput(JSON.stringify({ status: "error", message: "Unauthorized" }))
+        .createTextOutput(JSON.stringify({ status: "error", message: "Unauthorized: Invalid Secret" }))
         .setMimeType(ContentService.MimeType.JSON);
     }
 

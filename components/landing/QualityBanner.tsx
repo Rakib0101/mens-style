@@ -30,7 +30,7 @@ export default function QualityBanner() {
 
 				<Image
 					src={b.image}
-					alt=""
+					alt={b.title || "Mens Style Quality Polo Shirt"}
 					width={710}
 					height={584}
 					className="w-full object-cover lg:order-last"

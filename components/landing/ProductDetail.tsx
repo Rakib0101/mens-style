@@ -9,7 +9,7 @@ export default function ProductDetail() {
 			<div className="container-page grid gap-10 lg:grid-cols-2 lg:items-center">
 				<Image
 					src="/images/products/t-shirt/zoom.png"
-					alt=""
+					alt={content.productDetailSection.title || "প্রিমিয়াম কটন ফেব্রিক টেক্সচার ডিটেইল"}
 					width={900}
 					height={900}
 					className="aspect-square w-full rounded-lg object-cover"

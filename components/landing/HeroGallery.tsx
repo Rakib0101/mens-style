@@ -109,7 +109,7 @@ export default function HeroGallery({
 						>
 							<Image
 								src={item.thumb}
-								alt=""
+								alt={item.alt}
 								fill
 								sizes="80px"
 								className="object-cover transition-transform duration-200 group-hover:scale-105"
