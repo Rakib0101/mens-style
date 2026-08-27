@@ -1,4 +1,5 @@
 import content from "@/data/site.json";
+import Image from "next/image";
 import HeroGallery from "./HeroGallery";
 
 export default function Hero() {
@@ -7,15 +8,18 @@ export default function Hero() {
 
 	return (
 		<section className="relative overflow-hidden bg-ink text-white">
-			{/* Subtle brand watermark background */}
-			<div
-				className="pointer-events-none absolute inset-0 bg-repeat opacity-40"
-				style={{
-					backgroundImage: "url('/images/hero-pattern.png')",
-					backgroundSize: "97px 95px",
-				}}
-				aria-hidden="true"
-			/>
+			{/* Brand pattern background */}
+			<div className="pointer-events-none absolute inset-0 select-none" aria-hidden="true">
+				<Image
+					src="/images/hero-bg.png"
+					alt=""
+					fill
+					sizes="100vw"
+					quality={90}
+					priority
+					className="object-cover object-center"
+				/>
+			</div>
 
 			<div className="container-page relative z-10 py-12 text-center sm:py-16">
 				<div className="mx-auto max-w-5xl">
