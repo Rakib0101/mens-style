@@ -2,7 +2,7 @@
 	"brand": {
 		"name": "Mens Style",
 		"phones": ["01711-923182", "01318-400290"],
-		"address": "Office- Block-L, Road-1450-26, 2nd Floor, Banani, Dhaka-1213",
+		"address": "Office -Block-L,Road-2,House-26, 2nd Floor, Banani, Dhaka-1213",
 		"social": {
 			"facebook": "https://facebook.com/mensstyle",
 			"twitter": "https://x.com/mensstyle",
@@ -57,8 +57,8 @@
 		"slug": "premium-cotton-polo",
 		"title": "প্রিমিয়াম কটন পোলো শার্ট",
 		"subtitle": "আরাম, স্টাইল এবং প্রিমিয়াম ফিনিশ—প্রতিদিনের জন্য তৈরি একটি আধুনিক পোলো।",
-		"price": 1450,
-		"comparePrice": 1750,
+		"price": 1490,
+		"comparePrice": 1850,
 		"images": [
 			"/images/products/t-shirt/1.png",
 			"/images/products/t-shirt/2.png",
@@ -68,10 +68,10 @@
 		],
 		"sizes": ["M", "L", "XL", "XXL"],
 		"colors": [
-			{ "name": "চারকোল ব্ল্যাক", "hex": "#1c1c1c" },
-			{ "name": "নেভি ব্লু", "hex": "#1e2a4a" },
-			{ "name": "ক্রিসপ হোয়াইট", "hex": "#f5f5f0" },
-			{ "name": "কারমিন রেড", "hex": "#a3222c" }
+			{ "name": "কালো", "hex": "#1c1c1c" },
+			{ "name": "অফ হোয়াইট", "hex": "#efe9de" },
+			{ "name": "নেভি ব্লু", "hex": "#1d2f4e" },
+			{ "name": "লাল", "hex": "#e2371d" }
 		],
 		"rating": { "value": 4.9, "count": 545 },
 		"specs": [
@@ -152,7 +152,7 @@
 		}
 	],
 	"deliveryZones": [
-		{ "label": "ঢাকার ভিতরে", "charge": 60 },
+		{ "label": "ঢাকা", "charge": 80 },
 		{ "label": "ঢাকার বাইরে", "charge": 120 }
 	],
 	"orderSection": {

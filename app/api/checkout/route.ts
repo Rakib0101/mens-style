@@ -24,7 +24,9 @@ export async function POST(request: Request) {
   // Re-derive price and delivery charge from the known catalog/zones rather
   // than trusting whatever the client sent — closes client-side price tampering.
   const product = PRODUCTS.find((p) => p.slug === productSlug);
-  const zone = content.deliveryZones.find((z) => z.label === deliveryZoneLabel);
+  const zone =
+    content.deliveryZones.find((z) => z.label === deliveryZoneLabel) ||
+    content.deliveryZones[0];
 
   if (
     !product ||
