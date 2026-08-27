@@ -18,21 +18,21 @@ export default function Hero() {
 			/>
 
 			<div className="container-page relative z-10 py-12 text-center sm:py-16">
-				<div className="mx-auto max-w-2xl">
-					<h1 className="text-3xl font-bold leading-tight sm:text-4xl md:text-5xl">
+				<div className="mx-auto max-w-5xl">
+					<h1 className="text-3xl font-bold leading-tight sm:text-4xl md:text-6xl">
 						{p.title}
 					</h1>
-					<p className="mx-auto mt-3 max-w-xl text-sm sm:text-base md:text-lg text-white/75">
+					<p className="mx-auto mt-3 text-sm sm:text-base md:text-[28px] text-white/75">
 						{p.subtitle}
 					</p>
 
-					<div className="mt-4 flex items-center justify-center gap-2.5 text-sm sm:text-base">
+					<div className="mt-4 flex items-center justify-center gap-2.5 text-sm sm:text-2xl">
 						{p.comparePrice ? (
 							<span className="text-white/50 line-through">
 								{p.comparePrice} TK
 							</span>
 						) : null}
-						<span className="text-lg sm:text-xl font-bold text-brand">
+						<span className="text-lg sm:text-4xl! font-bold text-brand">
 							{p.price} TK
 						</span>
 						{savings > 0 ? (
