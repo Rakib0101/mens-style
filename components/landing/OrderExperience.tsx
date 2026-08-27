@@ -241,7 +241,7 @@ export default function OrderExperience() {
 			</section>
 
 			{/* 100% Figma Match Checkout Form Section */}
-			<section id="order" className="scroll-mt-10 py-10 sm:py-16 bg-white">
+			<section id="order" className="scroll-mt-10 py-10 sm:py-16 bg-[#F7F7F5]">
 				<div className="container-page">
 					<form
 						onSubmit={handleSubmit}
@@ -259,7 +259,9 @@ export default function OrderExperience() {
 									{/* Product Main Showcase Image */}
 									<div className="relative aspect-472/567 w-full overflow-hidden bg-surface-muted">
 										<Image
-											src={selected.images[0] || "/images/products/t-shirt/1.png"}
+											src={
+												selected.images[0] || "/images/products/t-shirt/1.png"
+											}
 											alt={selected.title}
 											fill
 											sizes="(max-width: 768px) 100vw, 480px"
@@ -335,8 +337,7 @@ export default function OrderExperience() {
 										{/* Size Selector */}
 										<div className="mt-5">
 											<p className="text-xs font-semibold text-[#666666] mb-2.5">
-												সাইজ নির্বাচন করুন{" "}
-												<span className="text-brand">*</span>
+												সাইজ নির্বাচন করুন <span className="text-brand">*</span>
 											</p>
 											<div className="flex items-center gap-2.5">
 												{selected.sizes.map((s) => (
@@ -389,9 +390,7 @@ export default function OrderExperience() {
 
 							{/* Card 2: আপনার তথ্য */}
 							<div className="bg-white border border-[#E5E5E5] p-6 sm:p-7">
-								<h2 className="text-xl font-bold text-ink mb-5">
-									আপনার তথ্য
-								</h2>
+								<h2 className="text-xl font-bold text-ink mb-5">আপনার তথ্য</h2>
 
 								<div className="space-y-4">
 									{/* Name field */}
@@ -514,7 +513,7 @@ export default function OrderExperience() {
 							<div className="py-4 flex items-center gap-3.5">
 								<div className="relative w-14 h-14 shrink-0 rounded-lg overflow-hidden bg-surface-muted">
 									<Image
-										src="/images/products/t-shirt/banner.png"
+										src={selected.images[0] || "/images/products/t-shirt/1.png"}
 										alt={selected.title}
 										fill
 										sizes="56px"
@@ -525,7 +524,9 @@ export default function OrderExperience() {
 									<p className="text-sm font-bold text-ink truncate">
 										{selected.title}
 									</p>
-									<p className="text-xs text-[#737373] mt-0.5">{color || "কালো"}</p>
+									<p className="text-xs text-[#737373] mt-0.5">
+										{color || "কালো"}
+									</p>
 								</div>
 							</div>
 
@@ -543,9 +544,7 @@ export default function OrderExperience() {
 								</div>
 								<div className="flex justify-between items-center text-[#4B5563]">
 									<span>ডেলিভারি চার্জ</span>
-									<span className="font-bold text-ink">
-										৳{deliveryCharge}
-									</span>
+									<span className="font-bold text-ink">৳{deliveryCharge}</span>
 								</div>
 							</div>
 
