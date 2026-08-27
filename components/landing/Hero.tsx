@@ -1,42 +1,59 @@
 import content from "@/data/site.json";
-import { formatPrice } from "@/lib/format";
 import HeroGallery from "./HeroGallery";
 
 export default function Hero() {
-  const p = content.flagshipProduct;
-  const savings = p.comparePrice ? p.comparePrice - p.price : 0;
+	const p = content.flagshipProduct;
+	const savings = p.comparePrice ? p.comparePrice - p.price : 0;
 
-  return (
-    <section className="bg-ink text-white">
-      <div className="container-page grid gap-10 py-14 text-center sm:py-20">
-        <div className="mx-auto max-w-2xl">
-          <h1 className="text-3xl font-bold leading-tight sm:text-5xl">{p.title}</h1>
-          <p className="mx-auto mt-4 max-w-xl text-white/70 sm:text-lg">{p.subtitle}</p>
+	return (
+		<section className="relative overflow-hidden bg-ink text-white">
+			{/* Subtle brand watermark background */}
+			<div
+				className="pointer-events-none absolute inset-0 bg-repeat opacity-40"
+				style={{
+					backgroundImage: "url('/images/hero-pattern.png')",
+					backgroundSize: "97px 95px",
+				}}
+				aria-hidden="true"
+			/>
 
-          <div className="mt-6 flex items-center justify-center gap-3">
-            {p.comparePrice ? (
-              <span className="text-lg text-white/50 line-through">
-                {formatPrice(p.comparePrice)}
-              </span>
-            ) : null}
-            <span className="text-3xl font-bold text-brand">{formatPrice(p.price)}</span>
-            {savings > 0 ? (
-              <span className="rounded-full bg-white/10 px-3 py-1 text-xs font-medium text-white/80">
-                Save {formatPrice(savings)}
-              </span>
-            ) : null}
-          </div>
+			<div className="container-page relative z-10 py-12 text-center sm:py-16">
+				<div className="mx-auto max-w-2xl">
+					<h1 className="text-3xl font-bold leading-tight sm:text-4xl md:text-5xl">
+						{p.title}
+					</h1>
+					<p className="mx-auto mt-3 max-w-xl text-sm sm:text-base md:text-lg text-white/75">
+						{p.subtitle}
+					</p>
 
-          <a
-            href="#order"
-            className="mt-8 inline-block rounded-full bg-brand px-8 py-3.5 text-sm font-semibold text-white transition-colors hover:bg-brand-dark"
-          >
-            {content.ctaLabel}
-          </a>
-        </div>
+					<div className="mt-4 flex items-center justify-center gap-2.5 text-sm sm:text-base">
+						{p.comparePrice ? (
+							<span className="text-white/50 line-through">
+								{p.comparePrice} TK
+							</span>
+						) : null}
+						<span className="text-lg sm:text-xl font-bold text-brand">
+							{p.price} TK
+						</span>
+						{savings > 0 ? (
+							<span className="font-medium text-white/80">
+								Save {savings} TK
+							</span>
+						) : null}
+					</div>
 
-        <HeroGallery images={p.images} alt={p.title} />
-      </div>
-    </section>
-  );
+					<a
+						href="#order"
+						className="mt-5 inline-block rounded-xs bg-brand px-6 py-2.5 text-xs sm:text-sm font-semibold text-white shadow-md transition-colors hover:bg-brand-dark"
+					>
+						অফার প্রাইস এ অর্ডার করুন
+					</a>
+				</div>
+
+				<div className="mt-8 sm:mt-10">
+					<HeroGallery images={p.images} alt={p.title} />
+				</div>
+			</div>
+		</section>
+	);
 }
