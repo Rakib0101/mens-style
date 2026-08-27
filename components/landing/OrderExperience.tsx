@@ -251,13 +251,13 @@ export default function OrderExperience() {
 						<div className="space-y-5">
 							{/* Card 1: আপনার প্রোডাক্ট */}
 							<div className="bg-white border border-[#E5E5E5] p-6 sm:p-7">
-								<h2 className="text-xl font-bold text-[#141414] mb-6">
+								<h2 className="text-xl font-bold text-ink mb-6">
 									আপনার প্রোডাক্ট
 								</h2>
 
 								<div className="grid grid-cols-1 md:grid-cols-2 gap-6 lg:gap-8 items-start">
 									{/* Product Main Showcase Image */}
-									<div className="relative aspect-[472/567] w-full overflow-hidden bg-surface-muted">
+									<div className="relative aspect-472/567 w-full overflow-hidden bg-surface-muted">
 										<Image
 											src={selected.images[0] || "/images/products/t-shirt/1.png"}
 											alt={selected.title}
@@ -270,11 +270,11 @@ export default function OrderExperience() {
 
 									{/* Product Details & Selection Options */}
 									<div>
-										<span className="inline-block bg-[#FDEFED] text-[#D4003D] text-xs font-semibold px-2.5 py-1 mb-2.5">
+										<span className="inline-block bg-[#FDEFED] text-brand text-xs font-semibold px-2.5 py-1 mb-2.5">
 											নতুন কালেকশন
 										</span>
 
-										<h3 className="text-2xl sm:text-3xl font-bold text-[#141414] leading-tight">
+										<h3 className="text-2xl sm:text-3xl font-bold text-ink leading-tight">
 											{selected.title}
 										</h3>
 
@@ -287,7 +287,7 @@ export default function OrderExperience() {
 											<div className="flex text-[#F59E0B] tracking-tight">
 												★★★★★
 											</div>
-											<span className="font-bold text-[#141414]">৪.৯</span>
+											<span className="font-bold text-ink">৪.৯</span>
 											<span className="text-[#737373] text-xs font-normal">
 												(২৮ রিভিউ)
 											</span>
@@ -295,7 +295,7 @@ export default function OrderExperience() {
 
 										{/* Price */}
 										<div className="mt-4 flex items-baseline gap-3">
-											<span className="text-3xl font-bold text-[#E21C34]">
+											<span className="text-3xl font-bold text-brand">
 												৳{selected.price.toLocaleString("en-US")}
 											</span>
 											{selected.comparePrice ? (
@@ -318,7 +318,7 @@ export default function OrderExperience() {
 														onClick={() => setColor(c.name)}
 														className={`relative h-9 w-9 rounded-full transition-all flex items-center justify-center ${
 															color === c.name
-																? "ring-2 ring-[#E21C34] ring-offset-2"
+																? "ring-2 ring-brand ring-offset-2"
 																: "hover:scale-105"
 														}`}
 														aria-label={c.name}
@@ -336,7 +336,7 @@ export default function OrderExperience() {
 										<div className="mt-5">
 											<p className="text-xs font-semibold text-[#666666] mb-2.5">
 												সাইজ নির্বাচন করুন{" "}
-												<span className="text-[#E21C34]">*</span>
+												<span className="text-brand">*</span>
 											</p>
 											<div className="flex items-center gap-2.5">
 												{selected.sizes.map((s) => (
@@ -346,8 +346,8 @@ export default function OrderExperience() {
 														onClick={() => setSize(s)}
 														className={`h-12 w-12 sm:w-14 rounded-xl border text-sm font-semibold transition-all ${
 															size === s
-																? "border-[#141414] bg-white text-[#141414] ring-1 ring-[#141414]"
-																: "border-[#E5E5E5] bg-white text-[#141414] hover:border-[#141414]/40"
+																? "border-ink bg-white text-ink ring-1 ring-ink"
+																: "border-[#E5E5E5] bg-white text-ink hover:border-ink/40"
 														}`}
 													>
 														{s}
@@ -365,18 +365,18 @@ export default function OrderExperience() {
 												<button
 													type="button"
 													onClick={() => setQty((q) => Math.max(1, q - 1))}
-													className="text-lg text-[#666666] hover:text-[#141414] transition-colors p-1"
+													className="text-lg text-[#666666] hover:text-ink transition-colors p-1"
 													aria-label="Decrease quantity"
 												>
 													−
 												</button>
-												<span className="font-bold text-sm text-[#141414]">
+												<span className="font-bold text-sm text-ink">
 													{qty}
 												</span>
 												<button
 													type="button"
 													onClick={() => setQty((q) => Math.min(10, q + 1))}
-													className="text-lg text-[#666666] hover:text-[#141414] transition-colors p-1"
+													className="text-lg text-[#666666] hover:text-ink transition-colors p-1"
 													aria-label="Increase quantity"
 												>
 													+
@@ -389,7 +389,7 @@ export default function OrderExperience() {
 
 							{/* Card 2: আপনার তথ্য */}
 							<div className="bg-white border border-[#E5E5E5] p-6 sm:p-7">
-								<h2 className="text-xl font-bold text-[#141414] mb-5">
+								<h2 className="text-xl font-bold text-ink mb-5">
 									আপনার তথ্য
 								</h2>
 
@@ -397,7 +397,7 @@ export default function OrderExperience() {
 									{/* Name field */}
 									<div>
 										<label className="block text-xs font-semibold text-[#333333] mb-1.5">
-											আপনার নাম <span className="text-[#E21C34]">*</span>
+											আপনার নাম <span className="text-brand">*</span>
 										</label>
 										<input
 											required
@@ -405,7 +405,7 @@ export default function OrderExperience() {
 											value={name}
 											onChange={(e) => setName(e.target.value)}
 											placeholder="আপনার সম্পূর্ণ নাম লিখুন"
-											className="w-full h-12 px-3.5 rounded-none border border-[#E5E5E5] text-sm text-[#141414] placeholder-[#9CA3AF] outline-none focus:border-[#141414] transition-colors"
+											className="w-full h-12 px-3.5 rounded-none border border-[#E5E5E5] text-sm text-ink placeholder-[#9CA3AF] outline-none focus:border-ink transition-colors"
 										/>
 									</div>
 
@@ -413,7 +413,7 @@ export default function OrderExperience() {
 									<div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
 										<div>
 											<label className="block text-xs font-semibold text-[#333333] mb-1.5">
-												মোবাইল নম্বর <span className="text-[#E21C34]">*</span>
+												মোবাইল নম্বর <span className="text-brand">*</span>
 											</label>
 											<input
 												required
@@ -422,7 +422,7 @@ export default function OrderExperience() {
 												value={phone}
 												onChange={(e) => setPhone(e.target.value)}
 												placeholder="01XXXXXXXXX"
-												className="w-full h-12 px-3.5 rounded-none border border-[#E5E5E5] text-sm text-[#141414] placeholder-[#9CA3AF] outline-none focus:border-[#141414] transition-colors"
+												className="w-full h-12 px-3.5 rounded-none border border-[#E5E5E5] text-sm text-ink placeholder-[#9CA3AF] outline-none focus:border-ink transition-colors"
 											/>
 										</div>
 
@@ -435,7 +435,7 @@ export default function OrderExperience() {
 												value={email}
 												onChange={(e) => setEmail(e.target.value)}
 												placeholder="আপনার ইমেইল ঠিকানা"
-												className="w-full h-12 px-3.5 rounded-none border border-[#E5E5E5] text-sm text-[#141414] placeholder-[#9CA3AF] outline-none focus:border-[#141414] transition-colors"
+												className="w-full h-12 px-3.5 rounded-none border border-[#E5E5E5] text-sm text-ink placeholder-[#9CA3AF] outline-none focus:border-ink transition-colors"
 											/>
 										</div>
 									</div>
@@ -443,7 +443,7 @@ export default function OrderExperience() {
 									{/* Full Address field */}
 									<div>
 										<label className="block text-xs font-semibold text-[#333333] mb-1.5">
-											সম্পূর্ণ ঠিকানা <span className="text-[#E21C34]">*</span>
+											সম্পূর্ণ ঠিকানা <span className="text-brand">*</span>
 										</label>
 										<textarea
 											required
@@ -451,29 +451,29 @@ export default function OrderExperience() {
 											value={address}
 											onChange={(e) => setAddress(e.target.value)}
 											placeholder="বাসা/রোড, এলাকা, থানা ও জেলা লিখুন"
-											className="w-full py-3 px-3.5 rounded-none border border-[#E5E5E5] text-sm text-[#141414] placeholder-[#9CA3AF] outline-none focus:border-[#141414] transition-colors resize-none"
+											className="w-full py-3 px-3.5 rounded-none border border-[#E5E5E5] text-sm text-ink placeholder-[#9CA3AF] outline-none focus:border-ink transition-colors resize-none"
 										/>
 									</div>
 
 									{/* District Select field */}
 									<div>
 										<label className="block text-xs font-semibold text-[#333333] mb-1.5">
-											জেলা <span className="text-[#E21C34]">*</span>
+											জেলা <span className="text-brand">*</span>
 										</label>
 										<div className="relative">
 											<select
 												required
 												value={district}
 												onChange={(e) => setDistrict(e.target.value)}
-												className={`w-full h-12 px-3.5 pr-10 rounded-none border border-[#E5E5E5] text-sm bg-white outline-none focus:border-[#141414] transition-colors appearance-none cursor-pointer ${
-													!district ? "text-[#9CA3AF]" : "text-[#141414]"
+												className={`w-full h-12 px-3.5 pr-10 rounded-none border border-[#E5E5E5] text-sm bg-white outline-none focus:border-ink transition-colors appearance-none cursor-pointer ${
+													!district ? "text-[#9CA3AF]" : "text-ink"
 												}`}
 											>
 												<option value="" disabled>
 													জেলা নির্বাচন করুন
 												</option>
 												{DISTRICTS.map((d) => (
-													<option key={d} value={d} className="text-[#141414]">
+													<option key={d} value={d} className="text-ink">
 														{d}
 													</option>
 												))}
@@ -506,7 +506,7 @@ export default function OrderExperience() {
 
 						{/* Right Column: Card 3 - আপনার অর্ডার */}
 						<div className="bg-white border border-[#E5E5E5] p-6 sm:p-7 lg:sticky lg:top-24">
-							<h2 className="text-lg font-bold text-[#141414] pb-4 border-b border-[#E5E5E5]">
+							<h2 className="text-lg font-bold text-ink pb-4 border-b border-[#E5E5E5]">
 								আপনার অর্ডার
 							</h2>
 
@@ -522,7 +522,7 @@ export default function OrderExperience() {
 									/>
 								</div>
 								<div className="min-w-0 flex-1">
-									<p className="text-sm font-bold text-[#141414] truncate">
+									<p className="text-sm font-bold text-ink truncate">
 										{selected.title}
 									</p>
 									<p className="text-xs text-[#737373] mt-0.5">{color || "কালো"}</p>
@@ -533,17 +533,17 @@ export default function OrderExperience() {
 							<div className="space-y-3 pt-2 pb-4 text-sm">
 								<div className="flex justify-between items-center text-[#4B5563]">
 									<span>প্রোডাক্ট মূল্য</span>
-									<span className="font-bold text-[#141414]">
+									<span className="font-bold text-ink">
 										৳{subtotal.toLocaleString("en-US")}
 									</span>
 								</div>
 								<div className="flex justify-between items-center text-[#4B5563]">
 									<span>পরিমাণ</span>
-									<span className="font-bold text-[#141414]">× {qty}</span>
+									<span className="font-bold text-ink">× {qty}</span>
 								</div>
 								<div className="flex justify-between items-center text-[#4B5563]">
 									<span>ডেলিভারি চার্জ</span>
-									<span className="font-bold text-[#141414]">
+									<span className="font-bold text-ink">
 										৳{deliveryCharge}
 									</span>
 								</div>
@@ -551,19 +551,19 @@ export default function OrderExperience() {
 
 							{/* Total */}
 							<div className="pt-4 pb-5 border-t border-[#E5E5E5] flex justify-between items-center">
-								<span className="text-lg font-bold text-[#141414]">মোট</span>
-								<span className="text-2xl font-bold text-[#E21C34]">
+								<span className="text-lg font-bold text-ink">মোট</span>
+								<span className="text-2xl font-bold text-brand">
 									৳{total.toLocaleString("en-US")}
 								</span>
 							</div>
 
 							{/* Cash on Delivery option box */}
-							<div className="border-2 border-[#E21C34] rounded-none p-3.5 bg-white mb-5">
+							<div className="border-2 border-brand rounded-none p-3.5 bg-white mb-5">
 								<div className="flex items-center gap-2.5">
-									<div className="w-4 h-4 rounded-full border-2 border-[#E21C34] flex items-center justify-center shrink-0">
-										<div className="w-2 h-2 rounded-full bg-[#E21C34]" />
+									<div className="w-4 h-4 rounded-full border-2 border-brand flex items-center justify-center shrink-0">
+										<div className="w-2 h-2 rounded-full bg-brand" />
 									</div>
-									<span className="text-sm font-bold text-[#141414]">
+									<span className="text-sm font-bold text-ink">
 										ক্যাশ অন ডেলিভারি
 									</span>
 								</div>
@@ -573,7 +573,7 @@ export default function OrderExperience() {
 							</div>
 
 							{errorMsg ? (
-								<p className="mb-4 text-xs text-[#E21C34] font-medium" role="alert">
+								<p className="mb-4 text-xs text-brand font-medium" role="alert">
 									{errorMsg}
 								</p>
 							) : null}
@@ -584,7 +584,7 @@ export default function OrderExperience() {
 								disabled={status === "submitting"}
 								className={`w-full py-3.5 font-bold text-base text-white rounded-none transition-all ${
 									isFormFilled
-										? "bg-[#E21C34] hover:bg-[#C81730] shadow-md cursor-pointer"
+										? "bg-brand hover:bg-brand-dark shadow-md cursor-pointer"
 										: "bg-[#BCBCBC] hover:bg-[#A8A8A8] cursor-pointer"
 								} disabled:opacity-60`}
 							>
