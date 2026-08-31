@@ -1,40 +1,26 @@
 import Image from "next/image";
 import Link from "next/link";
-import { requireAdmin } from "@/lib/auth";
 import { getAllProducts } from "@/lib/products";
 import { formatPrice } from "@/lib/format";
-import { deleteProductAction, logoutAction, setFlagshipAction } from "@/app/admin/actions";
+import { deleteProductAction, setFlagshipAction } from "@/app/admin/actions";
 import ConfirmSubmitButton from "@/components/admin/ConfirmSubmitButton";
 
 export default async function AdminDashboardPage() {
-  await requireAdmin();
   const allProducts = await getAllProducts();
 
   return (
-    <div className="min-h-screen bg-surface-muted">
-      <header className="border-b border-surface-line bg-white">
-        <div className="mx-auto flex max-w-5xl items-center justify-between px-4 py-4 sm:px-6">
-          <h1 className="text-lg font-bold text-ink">Products</h1>
-          <div className="flex items-center gap-3">
-            <Link
-              href="/admin/products/new"
-              className="rounded-lg bg-brand px-4 py-2 text-sm font-bold text-white hover:bg-brand-dark"
-            >
-              + Add product
-            </Link>
-            <form action={logoutAction}>
-              <button
-                type="submit"
-                className="rounded-lg border border-surface-line px-4 py-2 text-sm font-medium text-ink/70 hover:bg-surface-muted"
-              >
-                Log out
-              </button>
-            </form>
-          </div>
-        </div>
-      </header>
+    <div className="px-4 py-8 sm:px-8">
+      <div className="mb-6 flex items-center justify-between">
+        <h1 className="text-lg font-bold text-ink">Products</h1>
+        <Link
+          href="/admin/products/new"
+          className="rounded-lg bg-brand px-4 py-2 text-sm font-bold text-white hover:bg-brand-dark"
+        >
+          + Add product
+        </Link>
+      </div>
 
-      <main className="mx-auto max-w-5xl px-4 py-8 sm:px-6">
+      <div className="mx-auto max-w-5xl">
         <div className="grid gap-4">
           {allProducts.map((product) => (
             <div
@@ -100,7 +86,7 @@ export default async function AdminDashboardPage() {
             </p>
           ) : null}
         </div>
-      </main>
+      </div>
     </div>
   );
 }
