@@ -35,3 +35,15 @@ export const products = pgTable("products", {
 
 export type Product = typeof products.$inferSelect;
 export type NewProduct = typeof products.$inferInsert;
+
+export const users = pgTable("users", {
+  id: serial("id").primaryKey(),
+  username: text("username").notNull().unique(),
+  passwordHash: text("password_hash").notNull(),
+  role: text("role", { enum: ["admin", "staff"] }).notNull().default("staff"),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+});
+
+export type Role = "admin" | "staff";
+export type User = typeof users.$inferSelect;
+export type NewUser = typeof users.$inferInsert;

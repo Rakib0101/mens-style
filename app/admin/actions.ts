@@ -1,25 +1,87 @@
 "use server";
 
-import { eq } from "drizzle-orm";
+import { eq, count } from "drizzle-orm";
 import { put } from "@vercel/blob";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { getDb } from "@/lib/db";
-import { products } from "@/lib/db/schema";
-import { checkPassword, createSession, destroySession, requireAdmin } from "@/lib/auth";
+import { products, users } from "@/lib/db/schema";
+import {
+  createSession,
+  destroySession,
+  hashPassword,
+  requireAdminRole,
+  requireUser,
+  verifyCredentials,
+} from "@/lib/auth";
 
 export async function loginAction(formData: FormData) {
+  const username = String(formData.get("username") || "").trim();
   const password = String(formData.get("password") || "");
-  if (!checkPassword(password)) {
+
+  const user = await verifyCredentials(username, password);
+  if (!user) {
     redirect("/admin/login?error=1");
   }
-  await createSession();
+
+  await createSession(user);
   redirect("/admin");
 }
 
 export async function logoutAction() {
   await destroySession();
   redirect("/admin/login");
+}
+
+export async function createUserAction(formData: FormData) {
+  await requireAdminRole();
+  const db = getDb();
+
+  const username = String(formData.get("username") || "").trim();
+  const password = String(formData.get("password") || "");
+  const role = formData.get("role") === "admin" ? "admin" : "staff";
+
+  if (!username || !password) {
+    redirect("/admin/users?error=missing");
+  }
+
+  const existing = await db.select().from(users).where(eq(users.username, username)).limit(1);
+  if (existing.length > 0) {
+    redirect("/admin/users?error=exists");
+  }
+
+  await db.insert(users).values({
+    username,
+    passwordHash: await hashPassword(password),
+    role,
+  });
+
+  revalidatePath("/admin/users");
+  redirect("/admin/users");
+}
+
+export async function deleteUserAction(id: number) {
+  const session = await requireAdminRole();
+  const db = getDb();
+
+  if (session.userId === id) {
+    redirect("/admin/users?error=self");
+  }
+
+  const target = await db.select().from(users).where(eq(users.id, id)).limit(1);
+  if (target[0]?.role === "admin") {
+    const [{ value: adminCount }] = await db
+      .select({ value: count() })
+      .from(users)
+      .where(eq(users.role, "admin"));
+    if (adminCount <= 1) {
+      redirect("/admin/users?error=lastadmin");
+    }
+  }
+
+  await db.delete(users).where(eq(users.id, id));
+  revalidatePath("/admin/users");
+  redirect("/admin/users");
 }
 
 function slugify(title: string) {
@@ -114,7 +176,7 @@ function readProductFields(formData: FormData) {
 }
 
 export async function createProductAction(formData: FormData) {
-  await requireAdmin();
+  await requireUser();
   const db = getDb();
 
   const fields = readProductFields(formData);
@@ -147,7 +209,7 @@ export async function createProductAction(formData: FormData) {
 }
 
 export async function updateProductAction(id: number, formData: FormData) {
-  await requireAdmin();
+  await requireUser();
   const db = getDb();
 
   const fields = readProductFields(formData);
@@ -187,7 +249,7 @@ export async function updateProductAction(id: number, formData: FormData) {
 }
 
 export async function deleteProductAction(id: number) {
-  await requireAdmin();
+  await requireUser();
   await getDb().delete(products).where(eq(products.id, id));
   revalidatePath("/");
   revalidatePath("/admin");
@@ -195,7 +257,7 @@ export async function deleteProductAction(id: number) {
 }
 
 export async function setFlagshipAction(id: number) {
-  await requireAdmin();
+  await requireUser();
   const db = getDb();
   await db.update(products).set({ isFlagship: false }).where(eq(products.isFlagship, true));
   await db.update(products).set({ isFlagship: true }).where(eq(products.id, id));

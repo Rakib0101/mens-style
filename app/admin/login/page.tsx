@@ -23,9 +23,23 @@ export default async function AdminLoginPage({
 
         {error ? (
           <p className="rounded-md bg-red-50 px-3 py-2 text-sm text-red-600">
-            Incorrect password. Please try again.
+            Incorrect username or password. Please try again.
           </p>
         ) : null}
+
+        <div>
+          <label className="mb-1.5 block text-xs font-semibold text-ink/70">
+            Username
+          </label>
+          <input
+            type="text"
+            name="username"
+            required
+            autoFocus
+            autoComplete="username"
+            className="w-full rounded-lg border border-surface-line px-3.5 py-2.5 text-sm outline-none focus:border-ink"
+          />
+        </div>
 
         <div>
           <label className="mb-1.5 block text-xs font-semibold text-ink/70">
@@ -35,7 +49,7 @@ export default async function AdminLoginPage({
             type="password"
             name="password"
             required
-            autoFocus
+            autoComplete="current-password"
             className="w-full rounded-lg border border-surface-line px-3.5 py-2.5 text-sm outline-none focus:border-ink"
           />
         </div>
