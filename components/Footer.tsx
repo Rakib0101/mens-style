@@ -1,7 +1,14 @@
-import content from "@/data/site.json";
 import Image from "next/image";
 
-export default function Footer() {
+export default function Footer({
+	phones,
+	address,
+	facebookUrl,
+}: {
+	phones: string[];
+	address: string;
+	facebookUrl: string;
+}) {
 	return (
 		<footer className="bg-[#212121] text-white">
 			<div className="container-page flex flex-col md:flex-row items-center justify-between gap-8 py-8 md:py-10">
@@ -37,8 +44,9 @@ export default function Footer() {
 							</svg>
 						</div>
 						<div className="text-sm font-medium leading-snug tracking-wide text-white">
-							<p>01711-923182</p>
-							<p>01318-400290</p>
+							{phones.map((phone) => (
+								<p key={phone}>{phone}</p>
+							))}
 						</div>
 					</div>
 
@@ -58,9 +66,8 @@ export default function Footer() {
 								<circle cx="12" cy="10" r="3" />
 							</svg>
 						</div>
-						<div className="text-sm font-medium leading-snug tracking-wide text-white">
-							<p>Office -Block-L,Road-2,House-26,</p>
-							<p>2nd Floor, Banani, Dhaka-1213</p>
+						<div className="max-w-55 text-sm font-medium leading-snug tracking-wide text-white">
+							<p>{address}</p>
 						</div>
 					</div>
 				</div>
@@ -69,7 +76,7 @@ export default function Footer() {
 				<div className="flex items-center gap-3 shrink-0">
 					{/* Facebook */}
 					<a
-						href={content.brand.social.facebook}
+						href={facebookUrl}
 						target="_blank"
 						rel="noopener noreferrer"
 						aria-label="Facebook"

@@ -1,6 +1,7 @@
-import content from "@/data/site.json";
 import type { OrderPayload } from "@/lib/types";
 import { getProductBySlug } from "@/lib/products";
+import { getSiteSettings } from "@/lib/settings";
+import { createOrder } from "@/lib/orders";
 
 const BD_PHONE_RE = /^01[3-9]\d{8}$/;
 
@@ -23,10 +24,13 @@ export async function POST(request: Request) {
 
   // Re-derive price and delivery charge from the known catalog/zones rather
   // than trusting whatever the client sent — closes client-side price tampering.
-  const product = await getProductBySlug(productSlug);
+  const [product, settings] = await Promise.all([
+    getProductBySlug(productSlug),
+    getSiteSettings(),
+  ]);
   const zone =
-    content.deliveryZones.find((z) => z.label === deliveryZoneLabel) ||
-    content.deliveryZones[0];
+    settings.deliveryZones.find((z) => z.label === deliveryZoneLabel) ||
+    settings.deliveryZones[0];
 
   if (
     !product ||
@@ -111,6 +115,27 @@ export async function POST(request: Request) {
       { error: "Failed to place order. Please check Google Sheets webhook." },
       { status: 500 },
     );
+  }
+
+  // Google Sheets remains the source of truth for order handling; this is
+  // just a local record for the admin panel. Never let it block the order.
+  try {
+    await createOrder({
+      productSlug: product.slug,
+      productTitle: product.title,
+      size,
+      color,
+      qty,
+      unitPrice,
+      deliveryZoneLabel: zone.label,
+      deliveryCharge,
+      totalPrice,
+      customerName: name.trim(),
+      customerPhone: phone.trim(),
+      customerAddress: address.trim(),
+    });
+  } catch (err) {
+    console.error("Checkout: failed to save order record to database:", err);
   }
 
   return Response.json({ ok: true });

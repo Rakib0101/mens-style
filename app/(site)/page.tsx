@@ -5,21 +5,34 @@ import ProductDetail from "@/components/landing/ProductDetail";
 import QualityBanner from "@/components/landing/QualityBanner";
 import OrderExperience from "@/components/landing/OrderExperience";
 import { getFlagshipProduct, getRelatedProducts } from "@/lib/products";
+import { getSiteSettings } from "@/lib/settings";
 
 export default async function Home() {
-  const [flagship, related] = await Promise.all([
+  const [flagship, related, settings] = await Promise.all([
     getFlagshipProduct(),
     getRelatedProducts(),
+    getSiteSettings(),
   ]);
 
   return (
     <>
       <Hero />
       <HighlightsBar />
-      <WhyChooseUs />
+      <WhyChooseUs items={settings.whyChooseUs} />
       {flagship ? <ProductDetail product={flagship} /> : null}
-      <QualityBanner />
-      {flagship ? <OrderExperience flagship={flagship} related={related} /> : null}
+      <QualityBanner
+        title={settings.qualityBannerTitle}
+        desc={settings.qualityBannerDesc}
+        badges={settings.qualityBannerBadges}
+        image={settings.qualityBannerImage}
+      />
+      {flagship ? (
+        <OrderExperience
+          flagship={flagship}
+          related={related}
+          deliveryZones={settings.deliveryZones}
+        />
+      ) : null}
     </>
   );
 }

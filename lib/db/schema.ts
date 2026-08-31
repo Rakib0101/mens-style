@@ -47,3 +47,48 @@ export const users = pgTable("users", {
 export type Role = "admin" | "staff";
 export type User = typeof users.$inferSelect;
 export type NewUser = typeof users.$inferInsert;
+
+export const orders = pgTable("orders", {
+  id: serial("id").primaryKey(),
+  productSlug: text("product_slug").notNull(),
+  productTitle: text("product_title").notNull(),
+  size: text("size").notNull(),
+  color: text("color").notNull(),
+  qty: integer("qty").notNull(),
+  unitPrice: integer("unit_price").notNull(),
+  deliveryZoneLabel: text("delivery_zone_label").notNull(),
+  deliveryCharge: integer("delivery_charge").notNull(),
+  totalPrice: integer("total_price").notNull(),
+  customerName: text("customer_name").notNull(),
+  customerPhone: text("customer_phone").notNull(),
+  customerAddress: text("customer_address").notNull(),
+  status: text("status", {
+    enum: ["pending", "confirmed", "delivered", "cancelled"],
+  })
+    .notNull()
+    .default("pending"),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+});
+
+export type OrderStatus = "pending" | "confirmed" | "delivered" | "cancelled";
+export type Order = typeof orders.$inferSelect;
+export type NewOrder = typeof orders.$inferInsert;
+
+export type DeliveryZone = { label: string; charge: number };
+export type WhyChooseItem = { number: string; title: string; desc: string };
+
+export const siteSettings = pgTable("site_settings", {
+  id: serial("id").primaryKey(),
+  phones: jsonb("phones").$type<string[]>().notNull().default([]),
+  address: text("address").notNull().default(""),
+  facebookUrl: text("facebook_url").notNull().default(""),
+  deliveryZones: jsonb("delivery_zones").$type<DeliveryZone[]>().notNull().default([]),
+  whyChooseUs: jsonb("why_choose_us").$type<WhyChooseItem[]>().notNull().default([]),
+  qualityBannerTitle: text("quality_banner_title").notNull().default(""),
+  qualityBannerDesc: text("quality_banner_desc").notNull().default(""),
+  qualityBannerBadges: jsonb("quality_banner_badges").$type<string[]>().notNull().default([]),
+  qualityBannerImage: text("quality_banner_image").notNull().default(""),
+  updatedAt: timestamp("updated_at").notNull().defaultNow(),
+});
+
+export type SiteSettings = typeof siteSettings.$inferSelect;

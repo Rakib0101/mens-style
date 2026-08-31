@@ -3,7 +3,7 @@
 import content from "@/data/site.json";
 import { formatPrice, toBanglaDigits } from "@/lib/format";
 import type { OrderPayload } from "@/lib/types";
-import type { Product } from "@/lib/db/schema";
+import type { Product, DeliveryZone } from "@/lib/db/schema";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useState, type FormEvent } from "react";
@@ -88,9 +88,11 @@ function trackLead(value: number) {
 export default function OrderExperience({
 	flagship,
 	related,
+	deliveryZones,
 }: {
 	flagship: Product;
 	related: Product[];
+	deliveryZones: DeliveryZone[];
 }) {
 	const router = useRouter();
 	const [selected, setSelected] = useState<Product>(flagship);
@@ -116,8 +118,11 @@ export default function OrderExperience({
 			?.scrollIntoView({ behavior: "smooth", block: "start" });
 	}
 
-	// Delivery charge is 80 by default (Dhaka), or 120 outside Dhaka
-	const deliveryCharge = district && district !== "ঢাকা" ? 120 : 80;
+	// First zone = Dhaka-equivalent rate, second (or last) = everywhere else.
+	const dhakaZone = deliveryZones[0];
+	const outsideZone = deliveryZones[1] ?? deliveryZones[0];
+	const activeZone = district && district !== dhakaZone?.label ? outsideZone : dhakaZone;
+	const deliveryCharge = activeZone?.charge ?? 0;
 	const subtotal = selected.price * qty;
 	const total = subtotal + deliveryCharge;
 
@@ -151,7 +156,7 @@ export default function OrderExperience({
 			color,
 			qty,
 			unitPrice: selected.price,
-			deliveryZoneLabel: district === "ঢাকা" ? "ঢাকা" : "ঢাকার বাইরে",
+			deliveryZoneLabel: activeZone?.label ?? "",
 			deliveryCharge,
 			totalPrice: total,
 			name: name.trim(),

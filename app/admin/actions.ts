@@ -5,7 +5,9 @@ import { put } from "@vercel/blob";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { getDb } from "@/lib/db";
-import { products, users } from "@/lib/db/schema";
+import { products, users, type OrderStatus } from "@/lib/db/schema";
+import { updateOrderStatus } from "@/lib/orders";
+import { updateSiteSettings } from "@/lib/settings";
 import {
   createSession,
   destroySession,
@@ -14,6 +16,8 @@ import {
   requireUser,
   verifyCredentials,
 } from "@/lib/auth";
+
+const ORDER_STATUSES: OrderStatus[] = ["pending", "confirmed", "delivered", "cancelled"];
 
 export async function loginAction(formData: FormData) {
   const username = String(formData.get("username") || "").trim();
@@ -264,4 +268,74 @@ export async function setFlagshipAction(id: number) {
   revalidatePath("/");
   revalidatePath("/admin");
   redirect("/admin");
+}
+
+export async function updateOrderStatusAction(id: number, formData: FormData) {
+  await requireUser();
+  const status = String(formData.get("status") || "");
+  if (!ORDER_STATUSES.includes(status as OrderStatus)) {
+    redirect("/admin/orders");
+  }
+  await updateOrderStatus(id, status as OrderStatus);
+  revalidatePath("/admin/orders");
+  redirect("/admin/orders");
+}
+
+async function uploadSingleImage(file: FormDataEntryValue | null, fallback: string) {
+  if (!(file instanceof File) || file.size === 0) return fallback;
+  const blob = await put(`settings/${file.name}`, file, {
+    access: "public",
+    addRandomSuffix: true,
+  });
+  return blob.url;
+}
+
+export async function updateSettingsAction(formData: FormData) {
+  await requireAdminRole();
+
+  const phones = String(formData.get("phones") || "")
+    .split(",")
+    .map((s) => s.trim())
+    .filter(Boolean);
+  const address = String(formData.get("address") || "").trim();
+  const facebookUrl = String(formData.get("facebookUrl") || "").trim();
+
+  const deliveryZones = readRows(formData, ["zoneLabel", "zoneCharge"]).map((r) => ({
+    label: r.zoneLabel,
+    charge: Number(r.zoneCharge) || 0,
+  }));
+
+  const whyChooseUs = readRows(formData, ["whyNumber", "whyTitle", "whyDesc"]).map((r) => ({
+    number: r.whyNumber,
+    title: r.whyTitle,
+    desc: r.whyDesc,
+  }));
+
+  const qualityBannerTitle = String(formData.get("qualityBannerTitle") || "").trim();
+  const qualityBannerDesc = String(formData.get("qualityBannerDesc") || "").trim();
+  const qualityBannerBadges = String(formData.get("qualityBannerBadges") || "")
+    .split(",")
+    .map((s) => s.trim())
+    .filter(Boolean);
+  const currentImage = String(formData.get("currentQualityBannerImage") || "");
+  const qualityBannerImage = await uploadSingleImage(
+    formData.get("qualityBannerImage"),
+    currentImage,
+  );
+
+  await updateSiteSettings({
+    phones,
+    address,
+    facebookUrl,
+    deliveryZones,
+    whyChooseUs,
+    qualityBannerTitle,
+    qualityBannerDesc,
+    qualityBannerBadges,
+    qualityBannerImage,
+  });
+
+  revalidatePath("/");
+  revalidatePath("/admin/settings");
+  redirect("/admin/settings");
 }

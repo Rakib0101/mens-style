@@ -1,76 +1,10 @@
 "use client";
 
-import { useRef, useState } from "react";
-import Image from "next/image";
 import type { Product } from "@/lib/db/schema";
-
-const inputCls =
-  "w-full rounded-lg border border-surface-line px-3.5 py-2.5 text-sm outline-none focus:border-ink";
-
-function Field({ label, children }: { label: string; children: React.ReactNode }) {
-  return (
-    <label className="block">
-      <span className="mb-1.5 block text-xs font-semibold text-ink/70">{label}</span>
-      {children}
-    </label>
-  );
-}
-
-function useRows(initialCount: number) {
-  const nextId = useRef(initialCount);
-  const [ids, setIds] = useState<number[]>(() =>
-    Array.from({ length: initialCount }, (_, i) => i),
-  );
-  return {
-    ids,
-    add: () => setIds((r) => [...r, nextId.current++]),
-    remove: (id: number) => setIds((r) => r.filter((x) => x !== id)),
-  };
-}
-
-function RowSection({
-  title,
-  ids,
-  onAdd,
-  onRemove,
-  addLabel,
-  renderRow,
-}: {
-  title: string;
-  ids: number[];
-  onAdd: () => void;
-  onRemove: (id: number) => void;
-  addLabel: string;
-  renderRow: (index: number) => React.ReactNode;
-}) {
-  return (
-    <section className="space-y-3 rounded-xl border border-surface-line bg-white p-6">
-      <h2 className="font-bold text-ink">{title}</h2>
-      <div className="space-y-2">
-        {ids.map((id, index) => (
-          <div key={id} className="flex items-center gap-2">
-            <div className="flex-1">{renderRow(index)}</div>
-            <button
-              type="button"
-              onClick={() => onRemove(id)}
-              className="shrink-0 rounded-md border border-surface-line px-2.5 py-2 text-xs text-ink/60 hover:bg-surface-muted"
-              aria-label="Remove row"
-            >
-              ✕
-            </button>
-          </div>
-        ))}
-      </div>
-      <button
-        type="button"
-        onClick={onAdd}
-        className="rounded-lg border border-dashed border-surface-line px-3 py-1.5 text-xs font-medium text-ink/70 hover:bg-surface-muted"
-      >
-        {addLabel}
-      </button>
-    </section>
-  );
-}
+import FilePreviewInput from "@/components/admin/FilePreviewInput";
+import { Field, RowSection, inputCls, useRows } from "@/components/admin/form-helpers";
+import { useState } from "react";
+import Image from "next/image";
 
 export default function ProductForm({
   action,
@@ -170,7 +104,7 @@ export default function ProductForm({
         ) : null}
 
         <Field label="Add photos (the first photo overall is used as the cover)">
-          <input type="file" name="images" accept="image/*" multiple className="text-sm" />
+          <FilePreviewInput name="images" multiple />
         </Field>
       </section>
 

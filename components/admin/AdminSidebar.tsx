@@ -8,7 +8,9 @@ import type { Role } from "@/lib/db/schema";
 const NAV_ITEMS = [
   { href: "/admin", label: "Products", exact: true, adminOnly: false },
   { href: "/admin/products/new", label: "Add product", exact: true, adminOnly: false },
+  { href: "/admin/orders", label: "Orders", exact: false, adminOnly: false },
   { href: "/admin/users", label: "Users", exact: false, adminOnly: true },
+  { href: "/admin/settings", label: "Settings", exact: false, adminOnly: true },
 ];
 
 export default function AdminSidebar({

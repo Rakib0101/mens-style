@@ -1,6 +1,7 @@
 import content from "@/data/site.json";
+import type { WhyChooseItem } from "@/lib/db/schema";
 
-export default function WhyChooseUs() {
+export default function WhyChooseUs({ items }: { items: WhyChooseItem[] }) {
 	return (
 		<section id="why-choose-us" className="py-16 sm:py-24 bg-[#F7F7F5]">
 			<div className="container-page text-center">
@@ -15,7 +16,7 @@ export default function WhyChooseUs() {
 				</p>
 
 				<div className="mt-10 grid gap-4 text-left sm:grid-cols-2 lg:grid-cols-4">
-					{content.whyChooseUs.map((item) => (
+					{items.map((item) => (
 						<div
 							key={item.number}
 							className="border border-surface-line bg-white p-6"
