@@ -1,7 +1,7 @@
 import content from "@/data/site.json";
 import type { OrderPayload } from "@/lib/types";
+import { getProductBySlug } from "@/lib/products";
 
-const PRODUCTS = [content.flagshipProduct, ...content.relatedProducts];
 const BD_PHONE_RE = /^01[3-9]\d{8}$/;
 
 export async function POST(request: Request) {
@@ -23,7 +23,7 @@ export async function POST(request: Request) {
 
   // Re-derive price and delivery charge from the known catalog/zones rather
   // than trusting whatever the client sent — closes client-side price tampering.
-  const product = PRODUCTS.find((p) => p.slug === productSlug);
+  const product = await getProductBySlug(productSlug);
   const zone =
     content.deliveryZones.find((z) => z.label === deliveryZoneLabel) ||
     content.deliveryZones[0];

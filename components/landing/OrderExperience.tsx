@@ -1,26 +1,13 @@
 "use client";
 
 import content from "@/data/site.json";
-import { formatPrice } from "@/lib/format";
+import { formatPrice, toBanglaDigits } from "@/lib/format";
 import type { OrderPayload } from "@/lib/types";
+import type { Product } from "@/lib/db/schema";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useState, type FormEvent } from "react";
 
-type BuyableProduct = {
-	slug: string;
-	title: string;
-	subtitle?: string;
-	price: number;
-	comparePrice?: number | null;
-	images: string[];
-	sizes: string[];
-	colors: { name: string; hex: string }[];
-	rating?: { value: number; count: number };
-};
-
-const FLAGSHIP = content.flagshipProduct as BuyableProduct;
-const RELATED = content.relatedProducts as BuyableProduct[];
 const BD_PHONE_RE = /^01[3-9]\d{8}$/;
 
 const DISTRICTS = [
@@ -98,11 +85,17 @@ function trackLead(value: number) {
 	fbq?.("track", "Lead", { value, currency: "BDT" });
 }
 
-export default function OrderExperience() {
+export default function OrderExperience({
+	flagship,
+	related,
+}: {
+	flagship: Product;
+	related: Product[];
+}) {
 	const router = useRouter();
-	const [selected, setSelected] = useState<BuyableProduct>(FLAGSHIP);
-	const [size, setSize] = useState(FLAGSHIP.sizes[0] ?? "M");
-	const [color, setColor] = useState(FLAGSHIP.colors[0]?.name ?? "কালো");
+	const [selected, setSelected] = useState<Product>(flagship);
+	const [size, setSize] = useState(flagship.sizes[0] ?? "M");
+	const [color, setColor] = useState(flagship.colors[0]?.name ?? "কালো");
 	const [qty, setQty] = useState(1);
 	const [district, setDistrict] = useState("");
 	const [name, setName] = useState("");
@@ -113,7 +106,7 @@ export default function OrderExperience() {
 	const [status, setStatus] = useState<"idle" | "submitting" | "error">("idle");
 	const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
-	function selectProduct(product: BuyableProduct) {
+	function selectProduct(product: Product) {
 		setSelected(product);
 		setSize(product.sizes[0] ?? "M");
 		setColor(product.colors[0]?.name ?? "কালো");
@@ -197,7 +190,7 @@ export default function OrderExperience() {
 					</h2>
 
 					<div className="mt-8 grid grid-cols-2 gap-4 text-left lg:grid-cols-4">
-						{RELATED.map((product) => (
+						{related.map((product) => (
 							<button
 								key={product.slug}
 								type="button"
@@ -281,7 +274,7 @@ export default function OrderExperience() {
 										</h3>
 
 										<p className="mt-2 text-sm text-[#666666] leading-relaxed">
-											{selected.subtitle || content.flagshipProduct.subtitle}
+											{selected.subtitle || flagship.subtitle}
 										</p>
 
 										{/* Rating */}
@@ -289,9 +282,11 @@ export default function OrderExperience() {
 											<div className="flex text-[#F59E0B] tracking-tight">
 												★★★★★
 											</div>
-											<span className="font-bold text-ink">৪.৯</span>
+											<span className="font-bold text-ink">
+												{toBanglaDigits(selected.ratingValue.toFixed(1))}
+											</span>
 											<span className="text-[#737373] text-xs font-normal">
-												(২৮ রিভিউ)
+												({toBanglaDigits(selected.ratingCount)} রিভিউ)
 											</span>
 										</div>
 

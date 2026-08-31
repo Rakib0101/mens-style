@@ -4,16 +4,22 @@ import WhyChooseUs from "@/components/landing/WhyChooseUs";
 import ProductDetail from "@/components/landing/ProductDetail";
 import QualityBanner from "@/components/landing/QualityBanner";
 import OrderExperience from "@/components/landing/OrderExperience";
+import { getFlagshipProduct, getRelatedProducts } from "@/lib/products";
 
-export default function Home() {
+export default async function Home() {
+  const [flagship, related] = await Promise.all([
+    getFlagshipProduct(),
+    getRelatedProducts(),
+  ]);
+
   return (
     <>
       <Hero />
       <HighlightsBar />
       <WhyChooseUs />
-      <ProductDetail />
+      {flagship ? <ProductDetail product={flagship} /> : null}
       <QualityBanner />
-      <OrderExperience />
+      {flagship ? <OrderExperience flagship={flagship} related={related} /> : null}
     </>
   );
 }

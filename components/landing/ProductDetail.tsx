@@ -1,9 +1,8 @@
 import content from "@/data/site.json";
 import Image from "next/image";
+import type { Product } from "@/lib/db/schema";
 
-export default function ProductDetail() {
-	const p = content.flagshipProduct;
-
+export default function ProductDetail({ product: p }: { product: Product }) {
 	return (
 		<section className="py-16 sm:py-24">
 			<div className="container-page grid gap-16 lg:grid-cols-2 lg:items-center">
