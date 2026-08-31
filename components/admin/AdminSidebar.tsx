@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { logoutAction } from "@/app/admin/actions";
@@ -25,8 +26,15 @@ export default function AdminSidebar({
   return (
     <aside className="flex w-64 shrink-0 flex-col border-r border-surface-line bg-white">
       <div className="border-b border-surface-line px-6 py-5">
-        <p className="font-bold text-ink">Mens Style</p>
-        <p className="text-xs text-ink/50">Admin dashboard</p>
+        <Image
+          src="/images/logo.png"
+          alt="Mens Style"
+          width={224}
+          height={44}
+          className="h-8 w-auto max-w-35 object-contain"
+          priority
+        />
+        <p className="mt-1.5 text-xs text-ink/50">Admin dashboard</p>
       </div>
 
       <nav className="flex-1 space-y-1 px-3 py-4">
