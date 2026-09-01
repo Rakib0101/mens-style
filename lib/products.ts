@@ -1,5 +1,5 @@
 import "server-only";
-import { eq, asc } from "drizzle-orm";
+import { eq, ne, asc } from "drizzle-orm";
 import { getDb } from "@/lib/db";
 import { products, type Product } from "@/lib/db/schema";
 
@@ -12,11 +12,12 @@ export async function getFlagshipProduct(): Promise<Product | null> {
   return rows[0] ?? null;
 }
 
-export async function getRelatedProducts(): Promise<Product[]> {
+/** Every other product, for the "related styles" section on a product's own page. */
+export async function getOtherProducts(excludeSlug: string): Promise<Product[]> {
   return getDb()
     .select()
     .from(products)
-    .where(eq(products.isFlagship, false))
+    .where(ne(products.slug, excludeSlug))
     .orderBy(asc(products.sortOrder));
 }
 

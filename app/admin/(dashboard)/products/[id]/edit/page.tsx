@@ -16,7 +16,7 @@ export default async function EditProductPage({
 
   return (
     <div className="px-4 py-8 sm:px-8">
-      <div className="mx-auto max-w-3xl">
+      <div className="mx-auto max-w-5xl">
         <h1 className="mb-6 text-lg font-bold text-ink">Edit product</h1>
         <ProductForm action={boundUpdate} product={product} submitLabel="Save changes" />
       </div>

@@ -13,11 +13,6 @@ async function main() {
       address: content.brand.address,
       facebookUrl: content.brand.social.facebook ?? "",
       deliveryZones: content.deliveryZones,
-      whyChooseUs: content.whyChooseUs,
-      qualityBannerTitle: content.qualityBanner.title,
-      qualityBannerDesc: content.qualityBanner.desc,
-      qualityBannerBadges: content.qualityBanner.badges,
-      qualityBannerImage: content.qualityBanner.image,
     })
     .onConflictDoNothing({ target: siteSettings.id });
 

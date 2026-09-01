@@ -163,6 +163,21 @@ function readProductFields(formData: FormData) {
     length: r.sizeChartLength,
     shoulder: r.sizeChartShoulder,
   }));
+  const whyChooseUs = readRows(formData, ["whyNumber", "whyTitle", "whyDesc"]).map((r) => ({
+    number: r.whyNumber,
+    title: r.whyTitle,
+    desc: r.whyDesc,
+  }));
+
+  const heroCtaLabel = String(formData.get("heroCtaLabel") || "").trim();
+  const qualityBannerTitle = String(formData.get("qualityBannerTitle") || "").trim();
+  const qualityBannerDesc = String(formData.get("qualityBannerDesc") || "").trim();
+  const qualityBannerBadges = String(formData.get("qualityBannerBadges") || "")
+    .split(",")
+    .map((s) => s.trim())
+    .filter(Boolean);
+  const showQualityBanner = formData.get("showQualityBanner") === "on";
+  const showRelatedProducts = formData.get("showRelatedProducts") === "on";
 
   return {
     title,
@@ -176,6 +191,13 @@ function readProductFields(formData: FormData) {
     colors,
     specs,
     sizeChart,
+    whyChooseUs,
+    heroCtaLabel,
+    qualityBannerTitle,
+    qualityBannerDesc,
+    qualityBannerBadges,
+    showQualityBanner,
+    showRelatedProducts,
   };
 }
 
@@ -185,6 +207,7 @@ export async function createProductAction(formData: FormData) {
 
   const fields = readProductFields(formData);
   const newImages = await uploadNewImages(formData.getAll("images"));
+  const qualityBannerImage = await uploadSingleImage(formData.get("qualityBannerImage"), "");
   const slug = slugify(fields.title);
 
   if (fields.isFlagship) {
@@ -205,9 +228,18 @@ export async function createProductAction(formData: FormData) {
     ratingValue: fields.ratingValue,
     ratingCount: fields.ratingCount,
     isFlagship: fields.isFlagship,
+    whyChooseUs: fields.whyChooseUs,
+    heroCtaLabel: fields.heroCtaLabel || undefined,
+    qualityBannerTitle: fields.qualityBannerTitle,
+    qualityBannerDesc: fields.qualityBannerDesc,
+    qualityBannerBadges: fields.qualityBannerBadges,
+    qualityBannerImage,
+    showQualityBanner: fields.showQualityBanner,
+    showRelatedProducts: fields.showRelatedProducts,
   });
 
   revalidatePath("/");
+  revalidatePath("/products", "layout");
   revalidatePath("/admin");
   redirect("/admin");
 }
@@ -220,6 +252,11 @@ export async function updateProductAction(id: number, formData: FormData) {
   const keepImages = formData.getAll("keepImages").map((v) => String(v));
   const newImages = await uploadNewImages(formData.getAll("images"));
   const images = [...keepImages, ...newImages];
+  const currentBannerImage = String(formData.get("currentQualityBannerImage") || "");
+  const qualityBannerImage = await uploadSingleImage(
+    formData.get("qualityBannerImage"),
+    currentBannerImage,
+  );
 
   if (fields.isFlagship) {
     await db
@@ -243,11 +280,20 @@ export async function updateProductAction(id: number, formData: FormData) {
       ratingValue: fields.ratingValue,
       ratingCount: fields.ratingCount,
       isFlagship: fields.isFlagship,
+      whyChooseUs: fields.whyChooseUs,
+      heroCtaLabel: fields.heroCtaLabel || undefined,
+      qualityBannerTitle: fields.qualityBannerTitle,
+      qualityBannerDesc: fields.qualityBannerDesc,
+      qualityBannerBadges: fields.qualityBannerBadges,
+      qualityBannerImage,
+      showQualityBanner: fields.showQualityBanner,
+      showRelatedProducts: fields.showRelatedProducts,
       updatedAt: new Date(),
     })
     .where(eq(products.id, id));
 
   revalidatePath("/");
+  revalidatePath("/products", "layout");
   revalidatePath("/admin");
   redirect("/admin");
 }
@@ -256,6 +302,7 @@ export async function deleteProductAction(id: number) {
   await requireUser();
   await getDb().delete(products).where(eq(products.id, id));
   revalidatePath("/");
+  revalidatePath("/products", "layout");
   revalidatePath("/admin");
   redirect("/admin");
 }
@@ -266,6 +313,7 @@ export async function setFlagshipAction(id: number) {
   await db.update(products).set({ isFlagship: false }).where(eq(products.isFlagship, true));
   await db.update(products).set({ isFlagship: true }).where(eq(products.id, id));
   revalidatePath("/");
+  revalidatePath("/products", "layout");
   revalidatePath("/admin");
   redirect("/admin");
 }
@@ -305,41 +353,15 @@ export async function updateSettingsAction(formData: FormData) {
     charge: Number(r.zoneCharge) || 0,
   }));
 
-  const whyChooseUs = readRows(formData, ["whyNumber", "whyTitle", "whyDesc"]).map((r) => ({
-    number: r.whyNumber,
-    title: r.whyTitle,
-    desc: r.whyDesc,
-  }));
-
-  const qualityBannerTitle = String(formData.get("qualityBannerTitle") || "").trim();
-  const qualityBannerDesc = String(formData.get("qualityBannerDesc") || "").trim();
-  const qualityBannerBadges = String(formData.get("qualityBannerBadges") || "")
-    .split(",")
-    .map((s) => s.trim())
-    .filter(Boolean);
-  const currentImage = String(formData.get("currentQualityBannerImage") || "");
-  const qualityBannerImage = await uploadSingleImage(
-    formData.get("qualityBannerImage"),
-    currentImage,
-  );
-  const showQualityBanner = formData.get("showQualityBanner") === "on";
-  const showRelatedProducts = formData.get("showRelatedProducts") === "on";
-
   await updateSiteSettings({
     phones,
     address,
     facebookUrl,
     deliveryZones,
-    whyChooseUs,
-    showQualityBanner,
-    showRelatedProducts,
-    qualityBannerTitle,
-    qualityBannerDesc,
-    qualityBannerBadges,
-    qualityBannerImage,
   });
 
   revalidatePath("/");
+  revalidatePath("/products", "layout");
   revalidatePath("/admin/settings");
   redirect("/admin/settings");
 }

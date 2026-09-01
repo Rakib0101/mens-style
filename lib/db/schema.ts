@@ -12,6 +12,7 @@ import type { ColorOption } from "@/lib/types";
 
 export type Spec = { label: string; value: string };
 export type SizeChartRow = { size: string; chest: string; length: string; shoulder: string };
+export type WhyChooseItem = { number: string; title: string; desc: string };
 
 export const products = pgTable("products", {
   id: serial("id").primaryKey(),
@@ -29,6 +30,15 @@ export const products = pgTable("products", {
   ratingCount: integer("rating_count").notNull().default(0),
   isFlagship: boolean("is_flagship").notNull().default(false),
   sortOrder: integer("sort_order").notNull().default(0),
+  // Per-product landing page content
+  heroCtaLabel: text("hero_cta_label").notNull().default("অফার প্রাইস এ অর্ডার করুন"),
+  whyChooseUs: jsonb("why_choose_us").$type<WhyChooseItem[]>().notNull().default([]),
+  qualityBannerTitle: text("quality_banner_title").notNull().default(""),
+  qualityBannerDesc: text("quality_banner_desc").notNull().default(""),
+  qualityBannerBadges: jsonb("quality_banner_badges").$type<string[]>().notNull().default([]),
+  qualityBannerImage: text("quality_banner_image").notNull().default(""),
+  showQualityBanner: boolean("show_quality_banner").notNull().default(true),
+  showRelatedProducts: boolean("show_related_products").notNull().default(true),
   createdAt: timestamp("created_at").notNull().defaultNow(),
   updatedAt: timestamp("updated_at").notNull().defaultNow(),
 });
@@ -75,7 +85,6 @@ export type Order = typeof orders.$inferSelect;
 export type NewOrder = typeof orders.$inferInsert;
 
 export type DeliveryZone = { label: string; charge: number };
-export type WhyChooseItem = { number: string; title: string; desc: string };
 
 export const siteSettings = pgTable("site_settings", {
   id: serial("id").primaryKey(),
@@ -83,13 +92,6 @@ export const siteSettings = pgTable("site_settings", {
   address: text("address").notNull().default(""),
   facebookUrl: text("facebook_url").notNull().default(""),
   deliveryZones: jsonb("delivery_zones").$type<DeliveryZone[]>().notNull().default([]),
-  whyChooseUs: jsonb("why_choose_us").$type<WhyChooseItem[]>().notNull().default([]),
-  qualityBannerTitle: text("quality_banner_title").notNull().default(""),
-  qualityBannerDesc: text("quality_banner_desc").notNull().default(""),
-  qualityBannerBadges: jsonb("quality_banner_badges").$type<string[]>().notNull().default([]),
-  qualityBannerImage: text("quality_banner_image").notNull().default(""),
-  showQualityBanner: boolean("show_quality_banner").notNull().default(true),
-  showRelatedProducts: boolean("show_related_products").notNull().default(true),
   updatedAt: timestamp("updated_at").notNull().defaultNow(),
 });
 

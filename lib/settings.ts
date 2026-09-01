@@ -11,13 +11,6 @@ const FALLBACK: SiteSettings = {
   address: "",
   facebookUrl: "",
   deliveryZones: [],
-  whyChooseUs: [],
-  qualityBannerTitle: "",
-  qualityBannerDesc: "",
-  qualityBannerBadges: [],
-  qualityBannerImage: "",
-  showQualityBanner: true,
-  showRelatedProducts: true,
   updatedAt: new Date(0),
 };
 

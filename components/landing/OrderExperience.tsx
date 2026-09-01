@@ -5,6 +5,7 @@ import { formatPrice, toBanglaDigits } from "@/lib/format";
 import type { OrderPayload } from "@/lib/types";
 import type { Product, DeliveryZone } from "@/lib/db/schema";
 import Image from "next/image";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState, type FormEvent } from "react";
 
@@ -86,20 +87,19 @@ function trackLead(value: number) {
 }
 
 export default function OrderExperience({
-	flagship,
-	related,
+	product,
+	otherProducts,
 	deliveryZones,
 	showRelated,
 }: {
-	flagship: Product;
-	related: Product[];
+	product: Product;
+	otherProducts: Product[];
 	deliveryZones: DeliveryZone[];
 	showRelated: boolean;
 }) {
 	const router = useRouter();
-	const [selected, setSelected] = useState<Product>(flagship);
-	const [size, setSize] = useState(flagship.sizes[0] ?? "M");
-	const [color, setColor] = useState(flagship.colors[0]?.name ?? "কালো");
+	const [size, setSize] = useState(product.sizes[0] ?? "M");
+	const [color, setColor] = useState(product.colors[0]?.name ?? "কালো");
 	const [qty, setQty] = useState(1);
 	const [district, setDistrict] = useState("");
 	const [name, setName] = useState("");
@@ -110,22 +110,12 @@ export default function OrderExperience({
 	const [status, setStatus] = useState<"idle" | "submitting" | "error">("idle");
 	const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
-	function selectProduct(product: Product) {
-		setSelected(product);
-		setSize(product.sizes[0] ?? "M");
-		setColor(product.colors[0]?.name ?? "কালো");
-		setQty(1);
-		document
-			.getElementById("order")
-			?.scrollIntoView({ behavior: "smooth", block: "start" });
-	}
-
 	// First zone = Dhaka-equivalent rate, second (or last) = everywhere else.
 	const dhakaZone = deliveryZones[0];
 	const outsideZone = deliveryZones[1] ?? deliveryZones[0];
 	const activeZone = district && district !== dhakaZone?.label ? outsideZone : dhakaZone;
 	const deliveryCharge = activeZone?.charge ?? 0;
-	const subtotal = selected.price * qty;
+	const subtotal = product.price * qty;
 	const total = subtotal + deliveryCharge;
 
 	const isFormFilled = Boolean(
@@ -152,12 +142,12 @@ export default function OrderExperience({
 		setErrorMsg(null);
 
 		const payload: OrderPayload = {
-			productSlug: selected.slug,
-			productTitle: selected.title,
+			productSlug: product.slug,
+			productTitle: product.title,
 			size,
 			color,
 			qty,
-			unitPrice: selected.price,
+			unitPrice: product.price,
 			deliveryZoneLabel: activeZone?.label ?? "",
 			deliveryCharge,
 			totalPrice: total,
@@ -187,7 +177,7 @@ export default function OrderExperience({
 	return (
 		<>
 			{/* Related styles section */}
-			{showRelated && related.length > 0 ? (
+			{showRelated && otherProducts.length > 0 ? (
 			<section id="related" className="py-16 sm:py-20 bg-white">
 				<div className="container-page text-center">
 					<p className="text-sm font-semibold uppercase tracking-wide text-brand">
@@ -198,34 +188,29 @@ export default function OrderExperience({
 					</h2>
 
 					<div className="mt-8 grid grid-cols-2 gap-4 text-left lg:grid-cols-4">
-						{related.map((product) => (
-							<button
-								key={product.slug}
-								type="button"
-								onClick={() => selectProduct(product)}
-								className={`overflow-hidden rounded-xl border bg-white text-left transition-all ${
-									selected.slug === product.slug
-										? "border-brand ring-2 ring-brand/20"
-										: "border-[#E5E5E5] hover:border-ink/40"
-								}`}
+						{otherProducts.map((other) => (
+							<Link
+								key={other.slug}
+								href={`/products/${other.slug}`}
+								className="overflow-hidden rounded-xl border border-[#E5E5E5] bg-white text-left transition-all hover:border-ink/40"
 							>
 								<Image
-									src={product.images[0]}
-									alt={product.title}
+									src={other.images[0]}
+									alt={other.title}
 									width={600}
 									height={750}
 									className="aspect-4/5 w-full object-cover"
 								/>
 								<div className="p-3">
 									<p className="line-clamp-2 text-base font-bold text-ink">
-										{product.title}
+										{other.title}
 									</p>
 									<div className="mt-1 flex items-center justify-between gap-2">
 										<span className="text-lg font-bold text-brand">
-											{formatPrice(product.price)}
+											{formatPrice(other.price)}
 										</span>
 										<div className="flex gap-1">
-											{product.colors.map((c) => (
+											{other.colors.map((c) => (
 												<span
 													key={c.name}
 													className="h-3 w-3 rounded-full border border-black/10"
@@ -235,7 +220,7 @@ export default function OrderExperience({
 										</div>
 									</div>
 								</div>
-							</button>
+							</Link>
 						))}
 					</div>
 				</div>
@@ -262,9 +247,9 @@ export default function OrderExperience({
 									<div className="relative aspect-472/567 w-full overflow-hidden bg-surface-muted">
 										<Image
 											src={
-												selected.images[0] || "/images/products/t-shirt/1.png"
+												product.images[0] || "/images/products/t-shirt/1.png"
 											}
-											alt={selected.title}
+											alt={product.title}
 											fill
 											sizes="(max-width: 768px) 100vw, 480px"
 											className="object-cover object-top"
@@ -279,11 +264,11 @@ export default function OrderExperience({
 										</span>
 
 										<h3 className="text-2xl sm:text-3xl font-bold text-ink leading-tight">
-											{selected.title}
+											{product.title}
 										</h3>
 
 										<p className="mt-2 text-sm text-[#666666] leading-relaxed">
-											{selected.subtitle || flagship.subtitle}
+											{product.subtitle}
 										</p>
 
 										{/* Rating */}
@@ -292,21 +277,21 @@ export default function OrderExperience({
 												★★★★★
 											</div>
 											<span className="font-bold text-ink">
-												{toBanglaDigits(selected.ratingValue.toFixed(1))}
+												{toBanglaDigits(product.ratingValue.toFixed(1))}
 											</span>
 											<span className="text-[#737373] text-xs font-normal">
-												({toBanglaDigits(selected.ratingCount)} রিভিউ)
+												({toBanglaDigits(product.ratingCount)} রিভিউ)
 											</span>
 										</div>
 
 										{/* Price */}
 										<div className="mt-4 flex items-baseline gap-3">
 											<span className="text-3xl font-bold text-brand">
-												৳{selected.price.toLocaleString("en-US")}
+												৳{product.price.toLocaleString("en-US")}
 											</span>
-											{selected.comparePrice ? (
+											{product.comparePrice ? (
 												<span className="text-base text-[#8C8C8C] line-through">
-													৳{selected.comparePrice.toLocaleString("en-US")}
+													৳{product.comparePrice.toLocaleString("en-US")}
 												</span>
 											) : null}
 										</div>
@@ -317,7 +302,7 @@ export default function OrderExperience({
 												রঙ নির্বাচন করুন
 											</p>
 											<div className="flex items-center gap-3">
-												{selected.colors.map((c) => (
+												{product.colors.map((c) => (
 													<button
 														key={c.name}
 														type="button"
@@ -344,7 +329,7 @@ export default function OrderExperience({
 												সাইজ নির্বাচন করুন <span className="text-brand">*</span>
 											</p>
 											<div className="flex items-center gap-2.5">
-												{selected.sizes.map((s) => (
+												{product.sizes.map((s) => (
 													<button
 														key={s}
 														type="button"
@@ -517,8 +502,8 @@ export default function OrderExperience({
 							<div className="py-4 flex items-center gap-3.5">
 								<div className="relative w-14 h-14 shrink-0 rounded-lg overflow-hidden bg-surface-muted">
 									<Image
-										src={selected.images[0] || "/images/products/t-shirt/1.png"}
-										alt={selected.title}
+										src={product.images[0] || "/images/products/t-shirt/1.png"}
+										alt={product.title}
 										fill
 										sizes="56px"
 										className="object-cover"
@@ -526,7 +511,7 @@ export default function OrderExperience({
 								</div>
 								<div className="min-w-0 flex-1">
 									<p className="text-sm font-bold text-ink truncate">
-										{selected.title}
+										{product.title}
 									</p>
 									<p className="text-xs text-[#737373] mt-0.5">
 										{color || "কালো"}

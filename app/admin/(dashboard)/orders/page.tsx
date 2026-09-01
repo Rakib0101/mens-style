@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { requireUser } from "@/lib/auth";
 import { getAllOrders } from "@/lib/orders";
 import { formatPrice } from "@/lib/format";
@@ -36,10 +37,18 @@ export default async function OrdersPage() {
                   {order.size} / {order.color} &times; {order.qty}
                 </p>
               </div>
-              <OrderStatusSelect
-                status={order.status}
-                action={updateOrderStatusAction.bind(null, order.id)}
-              />
+              <div className="flex shrink-0 items-center gap-2">
+                <Link
+                  href={`/admin/orders/${order.id}`}
+                  className="rounded-lg border border-surface-line px-3 py-1.5 text-xs font-medium text-ink hover:bg-surface-muted"
+                >
+                  View
+                </Link>
+                <OrderStatusSelect
+                  status={order.status}
+                  action={updateOrderStatusAction.bind(null, order.id)}
+                />
+              </div>
             </div>
 
             <div className="mt-3 grid gap-1 text-sm text-ink/70 sm:grid-cols-2">

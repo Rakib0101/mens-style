@@ -10,33 +10,6 @@ export interface GalleryItem {
 	alt: string;
 }
 
-const DEFAULT_GALLERY: GalleryItem[] = [
-	{
-		id: "collar",
-		thumb: "/images/products/t-shirt/2.png",
-		full: "/images/products/t-shirt/1.png",
-		alt: "প্রিমিয়াম কটন পোলো শার্ট - ফ্রন্ট ভিউ",
-	},
-	{
-		id: "fabric",
-		thumb: "/images/products/t-shirt/3.png",
-		full: "/images/products/t-shirt/zoom.png",
-		alt: "প্রিমিয়াম কটন পোলো শার্ট - ফেব্রিক ডিটেইল",
-	},
-	{
-		id: "side",
-		thumb: "/images/products/t-shirt/4.png",
-		full: "/images/products/t-shirt/4.png",
-		alt: "প্রিমিয়াম কটন পোলো শার্ট - সাইড ভিউ",
-	},
-	{
-		id: "back",
-		thumb: "/images/products/t-shirt/5.png",
-		full: "/images/products/t-shirt/5.png",
-		alt: "প্রিমিয়াম কটন পোলো শার্ট - ব্যাক ভিউ",
-	},
-];
-
 export default function HeroGallery({
 	images,
 	alt,
@@ -46,33 +19,18 @@ export default function HeroGallery({
 }) {
 	const [active, setActive] = useState(0);
 
-	// Resolve gallery items
-	const items: GalleryItem[] = (() => {
-		if (!images || images.length === 0) return DEFAULT_GALLERY;
-		const isStandardTShirt = images.some((img) => img.includes("t-shirt"));
-		if (isStandardTShirt) {
-			return DEFAULT_GALLERY;
-		}
-		// Generic fallback: if 1st image is hero, and rest are thumbnails
-		if (images.length > 1) {
-			return images.slice(1).map((thumb, idx) => ({
-				id: `thumb-${idx}`,
-				thumb,
-				full: idx === 0 ? images[0] : thumb,
-				alt: `${alt} ${idx + 1}`,
-			}));
-		}
-		return [
-			{
-				id: "single",
-				thumb: images[0],
-				full: images[0],
-				alt,
-			},
-		];
-	})();
+	// Each photo doubles as its own thumbnail and full-size view.
+	const items: GalleryItem[] = (images && images.length > 0 ? images : []).map(
+		(img, idx) => ({
+			id: `img-${idx}`,
+			thumb: img,
+			full: img,
+			alt: `${alt} ${idx + 1}`,
+		}),
+	);
 
 	const activeItem = items[active] || items[0];
+	if (!activeItem) return null;
 
 	return (
 		<div className="mx-auto flex w-full flex-col items-center">

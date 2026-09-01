@@ -1,9 +1,8 @@
-import content from "@/data/site.json";
 import Image from "next/image";
+import type { Product } from "@/lib/db/schema";
 import HeroGallery from "./HeroGallery";
 
-export default function Hero() {
-	const p = content.flagshipProduct;
+export default function Hero({ product: p }: { product: Product }) {
 	const savings = p.comparePrice ? p.comparePrice - p.price : 0;
 
 	return (
@@ -49,7 +48,7 @@ export default function Hero() {
 						href="#order"
 						className="mt-5 inline-block rounded-xs bg-brand px-6 py-2.5 text-xs sm:text-sm font-semibold text-white shadow-md transition-colors hover:bg-brand-dark"
 					>
-						অফার প্রাইস এ অর্ডার করুন
+						{p.heroCtaLabel}
 					</a>
 				</div>
 

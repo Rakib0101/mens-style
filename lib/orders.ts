@@ -7,6 +7,11 @@ export async function getAllOrders(): Promise<Order[]> {
   return getDb().select().from(orders).orderBy(desc(orders.createdAt));
 }
 
+export async function getOrderById(id: number): Promise<Order | null> {
+  const rows = await getDb().select().from(orders).where(eq(orders.id, id)).limit(1);
+  return rows[0] ?? null;
+}
+
 export async function createOrder(order: Omit<NewOrder, "id" | "status" | "createdAt">) {
   await getDb().insert(orders).values(order);
 }
