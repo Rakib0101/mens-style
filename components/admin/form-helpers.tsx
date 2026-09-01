@@ -53,7 +53,7 @@ export function RowSection({
   renderRow: (index: number) => React.ReactNode;
 }) {
   return (
-    <section className="space-y-4 rounded-xl border border-surface-line bg-white p-6">
+    <section className="space-y-3 rounded-xl border border-surface-line bg-white p-5">
       <SectionHeader title={title} description={description} />
       <div className="space-y-2">
         {ids.map((id, index) => (

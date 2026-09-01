@@ -120,7 +120,7 @@ export default function ProductForm({
               name="colorName"
               placeholder="Color name (e.g. কালো)"
               defaultValue={product?.colors[i]?.name}
-              className={`${inputCls} flex-1`}
+              className={`${inputCls} min-w-0 flex-1`}
             />
             <input
               type="color"
@@ -144,13 +144,13 @@ export default function ProductForm({
               name="specLabel"
               placeholder="Label (e.g. মেটেরিয়াল)"
               defaultValue={product?.specs[i]?.label}
-              className={`${inputCls} w-1/3`}
+              className={`${inputCls} !w-1/3`}
             />
             <input
               name="specValue"
               placeholder="Value"
               defaultValue={product?.specs[i]?.value}
-              className={`${inputCls} flex-1`}
+              className={`${inputCls} min-w-0 flex-1`}
             />
           </div>
         )}

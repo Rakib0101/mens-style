@@ -24,7 +24,7 @@ export default function AdminSidebar({
   const pathname = usePathname();
 
   return (
-    <aside className="flex w-64 shrink-0 flex-col border-r border-surface-line bg-white">
+    <aside className="fixed inset-y-0 left-0 z-20 flex w-64 shrink-0 flex-col border-r border-surface-line bg-white">
       <div className="border-b border-surface-line px-6 py-5">
         <Image
           src="/images/logo.png"
