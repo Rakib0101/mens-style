@@ -322,6 +322,8 @@ export async function updateSettingsAction(formData: FormData) {
     formData.get("qualityBannerImage"),
     currentImage,
   );
+  const showQualityBanner = formData.get("showQualityBanner") === "on";
+  const showRelatedProducts = formData.get("showRelatedProducts") === "on";
 
   await updateSiteSettings({
     phones,
@@ -329,6 +331,8 @@ export async function updateSettingsAction(formData: FormData) {
     facebookUrl,
     deliveryZones,
     whyChooseUs,
+    showQualityBanner,
+    showRelatedProducts,
     qualityBannerTitle,
     qualityBannerDesc,
     qualityBannerBadges,

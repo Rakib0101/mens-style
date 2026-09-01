@@ -89,10 +89,12 @@ export default function OrderExperience({
 	flagship,
 	related,
 	deliveryZones,
+	showRelated,
 }: {
 	flagship: Product;
 	related: Product[];
 	deliveryZones: DeliveryZone[];
+	showRelated: boolean;
 }) {
 	const router = useRouter();
 	const [selected, setSelected] = useState<Product>(flagship);
@@ -185,6 +187,7 @@ export default function OrderExperience({
 	return (
 		<>
 			{/* Related styles section */}
+			{showRelated && related.length > 0 ? (
 			<section id="related" className="py-16 sm:py-20 bg-white">
 				<div className="container-page text-center">
 					<p className="text-sm font-semibold uppercase tracking-wide text-brand">
@@ -237,6 +240,7 @@ export default function OrderExperience({
 					</div>
 				</div>
 			</section>
+			) : null}
 
 			{/* 100% Figma Match Checkout Form Section */}
 			<section id="order" className="scroll-mt-10 py-10 sm:py-16 bg-[#F7F7F5]">

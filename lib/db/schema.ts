@@ -88,6 +88,8 @@ export const siteSettings = pgTable("site_settings", {
   qualityBannerDesc: text("quality_banner_desc").notNull().default(""),
   qualityBannerBadges: jsonb("quality_banner_badges").$type<string[]>().notNull().default([]),
   qualityBannerImage: text("quality_banner_image").notNull().default(""),
+  showQualityBanner: boolean("show_quality_banner").notNull().default(true),
+  showRelatedProducts: boolean("show_related_products").notNull().default(true),
   updatedAt: timestamp("updated_at").notNull().defaultNow(),
 });
 

@@ -20,17 +20,20 @@ export default async function Home() {
       <HighlightsBar />
       <WhyChooseUs items={settings.whyChooseUs} />
       {flagship ? <ProductDetail product={flagship} /> : null}
-      <QualityBanner
-        title={settings.qualityBannerTitle}
-        desc={settings.qualityBannerDesc}
-        badges={settings.qualityBannerBadges}
-        image={settings.qualityBannerImage}
-      />
+      {settings.showQualityBanner ? (
+        <QualityBanner
+          title={settings.qualityBannerTitle}
+          desc={settings.qualityBannerDesc}
+          badges={settings.qualityBannerBadges}
+          image={settings.qualityBannerImage}
+        />
+      ) : null}
       {flagship ? (
         <OrderExperience
           flagship={flagship}
           related={related}
           deliveryZones={settings.deliveryZones}
+          showRelated={settings.showRelatedProducts}
         />
       ) : null}
     </>

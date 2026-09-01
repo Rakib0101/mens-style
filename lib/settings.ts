@@ -16,6 +16,8 @@ const FALLBACK: SiteSettings = {
   qualityBannerDesc: "",
   qualityBannerBadges: [],
   qualityBannerImage: "",
+  showQualityBanner: true,
+  showRelatedProducts: true,
   updatedAt: new Date(0),
 };
 

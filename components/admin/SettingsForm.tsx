@@ -2,8 +2,9 @@
 
 import Image from "next/image";
 import type { SiteSettings } from "@/lib/db/schema";
-import { Field, RowSection, inputCls, useRows } from "@/components/admin/form-helpers";
+import { Field, RowSection, SectionHeader, inputCls, useRows } from "@/components/admin/form-helpers";
 import FilePreviewInput from "@/components/admin/FilePreviewInput";
+import ToggleSwitch from "@/components/admin/ToggleSwitch";
 
 export default function SettingsForm({
   action,
@@ -18,7 +19,31 @@ export default function SettingsForm({
   return (
     <form action={action} className="max-w-3xl space-y-6">
       <section className="space-y-4 rounded-xl border border-surface-line bg-white p-6">
-        <h2 className="font-bold text-ink">Contact info</h2>
+        <SectionHeader
+          title="Homepage sections"
+          description="Turn optional sections on or off without losing their content."
+        />
+        <div className="space-y-3">
+          <ToggleSwitch
+            name="showQualityBanner"
+            defaultChecked={settings.showQualityBanner}
+            label="Quality banner"
+            description="The dark banner with badges and a photo, shown below the product details."
+          />
+          <ToggleSwitch
+            name="showRelatedProducts"
+            defaultChecked={settings.showRelatedProducts}
+            label="Related products"
+            description="The “related styles” grid shown above the order form."
+          />
+        </div>
+      </section>
+
+      <section className="space-y-4 rounded-xl border border-surface-line bg-white p-6">
+        <SectionHeader
+          title="Contact info"
+          description="Shown in the site footer and used for SEO metadata."
+        />
         <Field label="Phone numbers — comma separated">
           <input
             name="phones"
@@ -41,6 +66,7 @@ export default function SettingsForm({
 
       <RowSection
         title="Delivery zones"
+        description="First zone is treated as the “Dhaka” rate; the rest apply everywhere else."
         ids={zones.ids}
         onAdd={zones.add}
         onRemove={zones.remove}
@@ -67,6 +93,7 @@ export default function SettingsForm({
 
       <RowSection
         title="Why choose us — bullets"
+        description="The four-column feature grid on the homepage."
         ids={whyItems.ids}
         onAdd={whyItems.add}
         onRemove={whyItems.remove}
@@ -98,8 +125,19 @@ export default function SettingsForm({
         )}
       />
 
-      <section className="space-y-4 rounded-xl border border-surface-line bg-white p-6">
-        <h2 className="font-bold text-ink">Quality banner</h2>
+      <section
+        className={`space-y-4 rounded-xl border border-surface-line bg-white p-6 ${
+          settings.showQualityBanner ? "" : "opacity-50"
+        }`}
+      >
+        <SectionHeader
+          title="Quality banner content"
+          description={
+            settings.showQualityBanner
+              ? "Currently shown on the homepage."
+              : "Currently hidden — turn it back on above to show it."
+          }
+        />
         <Field label="Title">
           <input
             name="qualityBannerTitle"
@@ -143,12 +181,14 @@ export default function SettingsForm({
         </Field>
       </section>
 
-      <button
-        type="submit"
-        className="rounded-lg bg-brand px-6 py-3 font-bold text-white hover:bg-brand-dark"
-      >
-        Save settings
-      </button>
+      <div className="sticky bottom-0 border-t border-surface-line bg-surface-muted/95 py-4 backdrop-blur">
+        <button
+          type="submit"
+          className="rounded-lg bg-brand px-6 py-3 font-bold text-white hover:bg-brand-dark"
+        >
+          Save settings
+        </button>
+      </div>
     </form>
   );
 }

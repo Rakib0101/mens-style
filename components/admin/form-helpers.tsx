@@ -14,6 +14,15 @@ export function Field({ label, children }: { label: string; children: React.Reac
   );
 }
 
+export function SectionHeader({ title, description }: { title: string; description?: string }) {
+  return (
+    <div>
+      <h2 className="font-bold text-ink">{title}</h2>
+      {description ? <p className="mt-0.5 text-xs text-ink/50">{description}</p> : null}
+    </div>
+  );
+}
+
 export function useRows(initialCount: number) {
   const nextId = useRef(initialCount);
   const [ids, setIds] = useState<number[]>(() =>
@@ -28,6 +37,7 @@ export function useRows(initialCount: number) {
 
 export function RowSection({
   title,
+  description,
   ids,
   onAdd,
   onRemove,
@@ -35,6 +45,7 @@ export function RowSection({
   renderRow,
 }: {
   title: string;
+  description?: string;
   ids: number[];
   onAdd: () => void;
   onRemove: (id: number) => void;
@@ -42,8 +53,8 @@ export function RowSection({
   renderRow: (index: number) => React.ReactNode;
 }) {
   return (
-    <section className="space-y-3 rounded-xl border border-surface-line bg-white p-6">
-      <h2 className="font-bold text-ink">{title}</h2>
+    <section className="space-y-4 rounded-xl border border-surface-line bg-white p-6">
+      <SectionHeader title={title} description={description} />
       <div className="space-y-2">
         {ids.map((id, index) => (
           <div key={id} className="flex items-center gap-2">
