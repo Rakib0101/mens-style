@@ -6,6 +6,7 @@ import { formatPrice } from "@/lib/format";
 import StatTile from "@/components/admin/StatTile";
 import OrdersBarChart from "@/components/admin/OrdersBarChart";
 import StatusBreakdown from "@/components/admin/StatusBreakdown";
+import FulfillmentMeter from "@/components/admin/FulfillmentMeter";
 
 const STATUS_PILL: Record<string, string> = {
   pending: "bg-[#fab219]/15 text-[#8a6100]",
@@ -26,14 +27,26 @@ export default async function AdminOverviewPage() {
       <div className="mx-auto max-w-5xl space-y-5">
         <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
           <StatTile label="Total orders" value={String(stats.totalOrders)} />
-          <StatTile label="Revenue" value={formatPrice(stats.totalRevenue)} sublabel="excludes cancelled" />
+          <StatTile
+            label="Revenue"
+            value={formatPrice(stats.totalRevenue)}
+            sublabel="from delivered orders"
+          />
           <StatTile label="Pending orders" value={String(stats.statusCounts.pending)} />
           <StatTile label="Products" value={String(allProducts.length)} />
         </div>
 
-        <div className="grid grid-cols-1 gap-5 lg:grid-cols-2">
-          <OrdersBarChart data={stats.dailyOrders} />
-          <StatusBreakdown counts={stats.statusCounts} />
+        <div className="grid grid-cols-1 gap-5 lg:grid-cols-3">
+          <div className="lg:col-span-2">
+            <OrdersBarChart data={stats.dailyOrders} />
+          </div>
+          <div className="space-y-5">
+            <FulfillmentMeter
+              delivered={stats.statusCounts.delivered}
+              total={stats.totalOrders}
+            />
+            <StatusBreakdown counts={stats.statusCounts} />
+          </div>
         </div>
 
         <section className="rounded-xl border border-surface-line bg-white p-5">

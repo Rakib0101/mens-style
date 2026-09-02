@@ -40,7 +40,9 @@ export async function getOrderStats(days = 14): Promise<OrderStats> {
   let totalRevenue = 0;
   for (const order of allOrders) {
     statusCounts[order.status]++;
-    if (order.status !== "cancelled") totalRevenue += order.totalPrice;
+    // Revenue only counts orders that actually got delivered (this is COD —
+    // no cash changes hands until then), not everything ever placed.
+    if (order.status === "delivered") totalRevenue += order.totalPrice;
   }
 
   const dailyOrders: { date: string; count: number }[] = [];
