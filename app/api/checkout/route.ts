@@ -74,12 +74,37 @@ export async function POST(request: Request) {
     );
   }
 
+  // Google Sheets remains the source of truth for order handling; this local
+  // record is what the admin dashboard reads. Create it first (best-effort,
+  // never blocks the order) so we can hand its id to the Sheet — that id is
+  // what lets a later status edit in the Sheet find its way back here.
+  let appOrderId: number | null = null;
+  try {
+    appOrderId = await createOrder({
+      productSlug: product.slug,
+      productTitle: product.title,
+      size,
+      color,
+      qty,
+      unitPrice,
+      deliveryZoneLabel: zone.label,
+      deliveryCharge,
+      totalPrice,
+      customerName: name.trim(),
+      customerPhone: phone.trim(),
+      customerAddress: address.trim(),
+    });
+  } catch (err) {
+    console.error("Checkout: failed to save order record to database:", err);
+  }
+
   try {
     const res = await fetch(webhookUrl, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         secret: webhookSecret,
+        appOrderId,
         productTitle: product.title,
         size,
         color,
@@ -115,27 +140,6 @@ export async function POST(request: Request) {
       { error: "Failed to place order. Please check Google Sheets webhook." },
       { status: 500 },
     );
-  }
-
-  // Google Sheets remains the source of truth for order handling; this is
-  // just a local record for the admin panel. Never let it block the order.
-  try {
-    await createOrder({
-      productSlug: product.slug,
-      productTitle: product.title,
-      size,
-      color,
-      qty,
-      unitPrice,
-      deliveryZoneLabel: zone.label,
-      deliveryCharge,
-      totalPrice,
-      customerName: name.trim(),
-      customerPhone: phone.trim(),
-      customerAddress: address.trim(),
-    });
-  } catch (err) {
-    console.error("Checkout: failed to save order record to database:", err);
   }
 
   return Response.json({ ok: true });

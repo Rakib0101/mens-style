@@ -10,20 +10,101 @@
  * 2. Deploy ➔ New deployment ➔ Web app. Execute as "Me", access "Anyone".
  * 3. Copy the deployment URL into GOOGLE_SHEETS_WEBHOOK_URL, and the same
  *    secret into GOOGLE_SHEETS_WEBHOOK_SECRET, in the Next.js app's env vars.
+ *
+ * Status sync (Sheet → dashboard) — optional, one-time setup:
+ * 4. Set APP_STATUS_WEBHOOK_URL below to your site's
+ *    "https://<your-domain>/api/sheets-status-webhook" (staging or
+ *    production — whichever URL you're editing the sheet against).
+ * 5. Run `installEditTrigger` once (▶ button, pick this function). It asks
+ *    for permission the first time — that's normal, this is what lets the
+ *    script call out to the site when you edit the Status column.
+ * 6. After pasting any code changes, redeploy: Deploy ➔ Manage deployments ➔
+ *    the pencil icon ➔ Version: New version ➔ Deploy. Editing the code alone
+ *    does not update the live webhook URL — this step does.
+ *
+ * Only orders placed AFTER step 4/5 are done carry the "App Order Id" this
+ * sync matches on — older rows have nothing to match and are ignored.
  */
 
 var SECRET = "mens_style_secret_key_2026";
+var APP_STATUS_WEBHOOK_URL = "https://YOUR-DOMAIN-HERE/api/sheets-status-webhook";
+
+var STATUS_COLUMN = 3; // C
+var APP_ORDER_ID_COLUMN = 16; // P
 
 function setSharedSecret() {
   PropertiesService.getScriptProperties().setProperty("SHARED_SECRET", SECRET);
 }
 
+// One-time: creates the installable trigger that lets onEditInstallable make
+// network calls (a plain onEdit(e) simple trigger is not allowed to).
+function installEditTrigger() {
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  // Avoid creating duplicates if this is run more than once.
+  var triggers = ScriptApp.getProjectTriggers();
+  for (var i = 0; i < triggers.length; i++) {
+    if (triggers[i].getHandlerFunction() === "onEditInstallable") {
+      ScriptApp.deleteTrigger(triggers[i]);
+    }
+  }
+  ScriptApp.newTrigger("onEditInstallable")
+    .forSpreadsheet(ss)
+    .onEdit()
+    .create();
+}
+
+// Fires on every edit to the sheet. Only acts when the Status column (C)
+// changed and the row has an App Order Id (P) to match against.
+function onEditInstallable(e) {
+  try {
+    if (!e || !e.range) return;
+    if (e.range.getColumn() !== STATUS_COLUMN) return;
+
+    var row = e.range.getRow();
+    if (row === 1) return; // header row
+
+    var sheet = e.range.getSheet();
+    var appOrderId = sheet.getRange(row, APP_ORDER_ID_COLUMN).getValue();
+    if (!appOrderId) return; // row predates the sync, or wasn't linked
+
+    var status = normalizeStatus(e.range.getValue());
+    if (!status) return; // typed text didn't match a known status, ignore
+
+    var secret = PropertiesService.getScriptProperties().getProperty("SHARED_SECRET") || SECRET;
+
+    UrlFetchApp.fetch(APP_STATUS_WEBHOOK_URL, {
+      method: "post",
+      contentType: "application/json",
+      payload: JSON.stringify({
+        secret: secret,
+        appOrderId: appOrderId,
+        status: status,
+      }),
+      muteHttpExceptions: true,
+    });
+  } catch (err) {
+    // Never let a sync failure interrupt someone editing the sheet.
+    console.error("Status sync failed: " + err);
+  }
+}
+
+// Loose, case-insensitive match so small variations in what gets typed
+// ("Delivered", "delivered ✓", "DELIVERED") still sync correctly.
+function normalizeStatus(value) {
+  var text = String(value || "").toLowerCase();
+  if (text.indexOf("deliver") !== -1) return "delivered";
+  if (text.indexOf("cancel") !== -1) return "cancelled";
+  if (text.indexOf("confirm") !== -1) return "confirmed";
+  if (text.indexOf("new") !== -1 || text.indexOf("pending") !== -1) return "pending";
+  return null;
+}
+
 // Health check endpoint
 function doGet(e) {
   return ContentService
-    .createTextOutput(JSON.stringify({ 
-      status: "active", 
-      message: "Mens Style Order Webhook is running successfully!" 
+    .createTextOutput(JSON.stringify({
+      status: "active",
+      message: "Mens Style Order Webhook is running successfully!"
     }))
     .setMimeType(ContentService.MimeType.JSON);
 }
@@ -89,6 +170,7 @@ function doPost(e) {
     // M: Price Amount
     // N: shipping method
     // O: Payment Method
+    // P: App Order Id (internal — links this row back to the dashboard)
     sheet.appendRow([
       formattedDate,                  // A: Date
       nextOrderId,                    // B: Order Id
@@ -104,7 +186,8 @@ function doPost(e) {
       data.qty || 1,                  // L: Qty
       data.totalPrice || 0,           // M: Price Amount
       data.deliveryZoneLabel || "ঢাকার ভিতরে", // N: shipping method
-      "cod"                           // O: Payment Method
+      "cod",                          // O: Payment Method
+      data.appOrderId || ""           // P: App Order Id
     ]);
 
     return ContentService

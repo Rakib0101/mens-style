@@ -12,8 +12,11 @@ export async function getOrderById(id: number): Promise<Order | null> {
   return rows[0] ?? null;
 }
 
-export async function createOrder(order: Omit<NewOrder, "id" | "status" | "createdAt">) {
-  await getDb().insert(orders).values(order);
+export async function createOrder(
+  order: Omit<NewOrder, "id" | "status" | "createdAt">,
+): Promise<number> {
+  const [row] = await getDb().insert(orders).values(order).returning({ id: orders.id });
+  return row.id;
 }
 
 export async function updateOrderStatus(id: number, status: OrderStatus) {
