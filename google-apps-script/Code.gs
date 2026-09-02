@@ -12,9 +12,9 @@
  *    secret into GOOGLE_SHEETS_WEBHOOK_SECRET, in the Next.js app's env vars.
  *
  * Sheet → dashboard sync — optional, one-time setup:
- * 4. Set APP_STATUS_WEBHOOK_URL below to your site's
- *    "https://<your-domain>/api/sheets-status-webhook" (staging or
- *    production — whichever URL you're editing the sheet against).
+ * 4. APP_STATUS_WEBHOOK_URL below is already set to the staging site. If you
+ *    later want status edits to reflect on the production site instead,
+ *    change it there and redeploy (step 6).
  * 5. Run `installEditTrigger` once (▶ button, pick this function). It asks
  *    for permission the first time — that's normal, this is what lets the
  *    script call out to the site when you edit the Status / Support Manager /
@@ -28,7 +28,7 @@
  */
 
 var SECRET = "mens_style_secret_key_2026";
-var APP_STATUS_WEBHOOK_URL = "https://YOUR-DOMAIN-HERE/api/sheets-status-webhook";
+var APP_STATUS_WEBHOOK_URL = "https://mens-style-git-staging-rakib0101s-projects.vercel.app/api/sheets-status-webhook";
 
 var STATUS_COLUMN = 3; // C
 var SUPPORT_MANAGER_COLUMN = 4; // D
