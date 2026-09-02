@@ -11,73 +11,6 @@ import { useState, type FormEvent } from "react";
 
 const BD_PHONE_RE = /^01[3-9]\d{8}$/;
 
-const DISTRICTS = [
-	"ঢাকা",
-	"গাজীপুর",
-	"নারায়ণগঞ্জ",
-	"চট্টগ্রাম",
-	"সিলেট",
-	"রাজশাহী",
-	"খুলনা",
-	"বরিশাল",
-	"রংপুর",
-	"ময়মনসিংহ",
-	"কুমিল্লা",
-	"ফেনী",
-	"ব্রাহ্মণবাড়িয়া",
-	"নোয়াখালী",
-	"চাঁদপুর",
-	"লক্ষ্মীপুর",
-	"কক্সবাজার",
-	"বান্দরবান",
-	"রাঙ্গামাটি",
-	"খাগড়াছড়ি",
-	"হবিগঞ্জ",
-	"মৌলভীবাজার",
-	"সুনামগঞ্জ",
-	"নরসিংদী",
-	"মুন্সীগঞ্জ",
-	"মানিকগঞ্জ",
-	"টাঙ্গাইল",
-	"কিশোরগঞ্জ",
-	"নেত্রকোণা",
-	"শেরপুর",
-	"জামালপুর",
-	"ফরিদপুর",
-	"মাদারীপুর",
-	"শরীয়তপুর",
-	"রাজবাড়ী",
-	"গোপালগঞ্জ",
-	"যশোর",
-	"সাতক্ষীরা",
-	"মাগুরা",
-	"নড়াইল",
-	"বাগেরহাট",
-	"ঝিনাইদহ",
-	"কুষ্টিয়া",
-	"চুয়াডাঙ্গা",
-	"মেহেরপুর",
-	"পাবনা",
-	"সিরাজগঞ্জ",
-	"বগুড়া",
-	"জয়পুরহাট",
-	"নাটোর",
-	"নওগাঁ",
-	"চাঁপাইনবাবগঞ্জ",
-	"দিনাজপুর",
-	"কুড়িগ্রাম",
-	"গাইবান্ধা",
-	"লালমনিরহাট",
-	"নীলফামারী",
-	"পঞ্চগড়",
-	"ঠাকুরগাঁও",
-	"ভোলা",
-	"পটুয়াখালী",
-	"ঝালকাঠি",
-	"পিরোজপুর",
-	"বরগুনা",
-];
-
 type FbqFn = (...args: unknown[]) => void;
 
 function trackLead(value: number) {
@@ -101,7 +34,7 @@ export default function OrderExperience({
 	const [size, setSize] = useState(product.sizes[0] ?? "M");
 	const [color, setColor] = useState(product.colors[0]?.name ?? "কালো");
 	const [qty, setQty] = useState(1);
-	const [district, setDistrict] = useState("");
+	const [zoneLabel, setZoneLabel] = useState(deliveryZones[0]?.label ?? "");
 	const [name, setName] = useState("");
 	const [phone, setPhone] = useState("");
 	const [email, setEmail] = useState("");
@@ -110,23 +43,18 @@ export default function OrderExperience({
 	const [status, setStatus] = useState<"idle" | "submitting" | "error">("idle");
 	const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
-	// First zone = Dhaka-equivalent rate, second (or last) = everywhere else.
-	const dhakaZone = deliveryZones[0];
-	const outsideZone = deliveryZones[1] ?? deliveryZones[0];
-	const activeZone = district && district !== dhakaZone?.label ? outsideZone : dhakaZone;
+	const activeZone = deliveryZones.find((z) => z.label === zoneLabel) ?? deliveryZones[0];
 	const deliveryCharge = activeZone?.charge ?? 0;
 	const subtotal = product.price * qty;
 	const total = subtotal + deliveryCharge;
 
-	const isFormFilled = Boolean(
-		name.trim() && phone.trim() && address.trim() && district.trim(),
-	);
+	const isFormFilled = Boolean(name.trim() && phone.trim() && address.trim() && zoneLabel);
 
 	async function handleSubmit(e: FormEvent<HTMLFormElement>) {
 		e.preventDefault();
 		if (honeypot) return;
 
-		if (!name.trim() || !phone.trim() || !address.trim() || !district.trim()) {
+		if (!name.trim() || !phone.trim() || !address.trim() || !zoneLabel) {
 			setErrorMsg("অনুগ্রহ করে সব প্রয়োজনীয় তথ্য পূরণ করুন।");
 			setStatus("error");
 			return;
@@ -153,7 +81,7 @@ export default function OrderExperience({
 			totalPrice: total,
 			name: name.trim(),
 			phone: phone.trim(),
-			address: `${address.trim()}, জেলা: ${district}${email.trim() ? ` (ইমেইল: ${email.trim()})` : ""}`,
+			address: `${address.trim()}${email.trim() ? ` (ইমেইল: ${email.trim()})` : ""}`,
 			honeypot,
 		};
 
@@ -438,42 +366,53 @@ export default function OrderExperience({
 											rows={2}
 											value={address}
 											onChange={(e) => setAddress(e.target.value)}
-											placeholder="বাসা/রোড, এলাকা, থানা ও জেলা লিখুন"
+											placeholder="বাসা/রোড, এলাকা ও থানার নাম লিখুন"
 											className="w-full py-3 px-3.5 rounded-none border border-[#E5E5E5] text-sm text-ink placeholder-[#9CA3AF] outline-none focus:border-ink transition-colors resize-none"
 										/>
 									</div>
 
-									{/* District Select field */}
+									{/* Delivery zone radio field */}
 									<div>
 										<label className="block text-xs font-semibold text-[#333333] mb-1.5">
-											জেলা <span className="text-brand">*</span>
+											ডেলিভারি এলাকা <span className="text-brand">*</span>
 										</label>
-										<div className="relative">
-											<select
-												required
-												value={district}
-												onChange={(e) => setDistrict(e.target.value)}
-												className={`w-full h-12 px-3.5 pr-10 rounded-none border border-[#E5E5E5] text-sm bg-white outline-none focus:border-ink transition-colors appearance-none cursor-pointer ${
-													!district ? "text-[#9CA3AF]" : "text-ink"
-												}`}
-											>
-												<option value="" disabled>
-													জেলা নির্বাচন করুন
-												</option>
-												{DISTRICTS.map((d) => (
-													<option key={d} value={d} className="text-ink">
-														{d}
-													</option>
-												))}
-											</select>
-											<div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3.5 text-[#666666]">
-												<svg
-													className="w-4 h-4 fill-current"
-													viewBox="0 0 20 20"
+										<div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+											{deliveryZones.map((zone) => (
+												<label
+													key={zone.label}
+													className={`flex items-center justify-between gap-2 h-12 px-3.5 border cursor-pointer transition-colors ${
+														zoneLabel === zone.label
+															? "border-ink ring-1 ring-ink bg-white"
+															: "border-[#E5E5E5] bg-white hover:border-ink/40"
+													}`}
 												>
-													<path d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" />
-												</svg>
-											</div>
+													<span className="flex items-center gap-2.5">
+														<span
+															className={`h-4 w-4 rounded-full border-2 flex items-center justify-center shrink-0 ${
+																zoneLabel === zone.label ? "border-brand" : "border-[#D1D5DB]"
+															}`}
+														>
+															{zoneLabel === zone.label ? (
+																<span className="h-2 w-2 rounded-full bg-brand" />
+															) : null}
+														</span>
+														<input
+															type="radio"
+															name="deliveryZone"
+															value={zone.label}
+															checked={zoneLabel === zone.label}
+															onChange={() => setZoneLabel(zone.label)}
+															className="sr-only"
+														/>
+														<span className="text-sm font-semibold text-ink">
+															{zone.label}
+														</span>
+													</span>
+													<span className="text-sm font-bold text-ink shrink-0">
+														৳{zone.charge}
+													</span>
+												</label>
+											))}
 										</div>
 									</div>
 
