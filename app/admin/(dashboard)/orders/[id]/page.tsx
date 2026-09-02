@@ -65,12 +65,22 @@ export default async function OrderDetailPage({
           </div>
         </section>
 
-        <section className="rounded-xl border border-surface-line bg-white p-6">
+        <section className="mb-5 rounded-xl border border-surface-line bg-white p-6">
           <h2 className="mb-4 font-bold text-ink">Customer</h2>
           <div className="divide-y divide-surface-line">
             <Row label="Name" value={order.customerName} />
             <Row label="Phone" value={order.customerPhone} />
             <Row label="Address" value={order.customerAddress} />
+          </div>
+        </section>
+
+        <section className="rounded-xl border border-surface-line bg-white p-6">
+          <h2 className="mb-1 font-bold text-ink">From Google Sheets</h2>
+          <p className="mb-4 text-sm text-ink/50">Synced automatically — edit these in the Sheet.</p>
+          <div className="divide-y divide-surface-line">
+            <Row label="Support Manager" value={order.supportManager || "—"} />
+            <Row label="Summary" value={order.summary || "—"} />
+            <Row label="Courier ID" value={order.courierId || "—"} />
           </div>
         </section>
       </div>

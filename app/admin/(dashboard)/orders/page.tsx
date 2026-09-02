@@ -5,12 +5,13 @@ import { formatPrice } from "@/lib/format";
 import { updateOrderStatusAction } from "@/app/admin/actions";
 import OrderStatusSelect from "@/components/admin/OrderStatusSelect";
 
-const STATUS_BORDER: Record<string, string> = {
-  pending: "border-l-amber-400",
-  confirmed: "border-l-blue-400",
-  delivered: "border-l-green-500",
-  cancelled: "border-l-red-400",
-};
+function Cell({ children, muted }: { children: React.ReactNode; muted?: boolean }) {
+  return (
+    <td className={`whitespace-nowrap px-3 py-3 text-sm ${muted ? "text-ink/40" : "text-ink/80"}`}>
+      {children ?? <span className="text-ink/30">—</span>}
+    </td>
+  );
+}
 
 export default async function OrdersPage() {
   await requireUser();
@@ -18,60 +19,73 @@ export default async function OrdersPage() {
 
   return (
     <div className="px-4 py-8 sm:px-8">
-      <h1 className="mb-6 text-lg font-bold text-ink">Orders</h1>
+      <h1 className="mb-1 text-lg font-bold text-ink">Orders</h1>
       <p className="mb-6 max-w-2xl text-sm text-ink/50">
-        Google Sheets remains where you manage orders day-to-day — this is just a local
-        record and quick status tracker.
+        Google Sheets remains where you manage orders day-to-day. Status, Support Manager,
+        Summary and Courier ID here sync automatically from the Sheet.
       </p>
 
-      <div className="mx-auto max-w-5xl space-y-3">
-        {allOrders.map((order) => (
-          <div
-            key={order.id}
-            className={`rounded-xl border border-l-4 border-surface-line bg-white p-4 ${STATUS_BORDER[order.status] ?? ""}`}
-          >
-            <div className="flex flex-wrap items-start justify-between gap-3">
-              <div>
-                <p className="font-bold text-ink">{order.productTitle}</p>
-                <p className="text-sm text-ink/60">
-                  {order.size} / {order.color} &times; {order.qty}
-                </p>
-              </div>
-              <div className="flex shrink-0 items-center gap-2">
-                <Link
-                  href={`/admin/orders/${order.id}`}
-                  className="rounded-lg border border-surface-line px-3 py-1.5 text-xs font-medium text-ink hover:bg-surface-muted"
-                >
-                  View
-                </Link>
-                <OrderStatusSelect
-                  status={order.status}
-                  action={updateOrderStatusAction.bind(null, order.id)}
-                />
-              </div>
-            </div>
-
-            <div className="mt-3 grid gap-1 text-sm text-ink/70 sm:grid-cols-2">
-              <p>
-                {order.customerName} &mdash; {order.customerPhone}
-              </p>
-              <p>
-                {order.deliveryZoneLabel} delivery &mdash; {formatPrice(order.deliveryCharge)}
-              </p>
-              <p className="sm:col-span-2">{order.customerAddress}</p>
-            </div>
-
-            <div className="mt-3 flex items-center justify-between border-t border-surface-line pt-3">
-              <span className="text-xs text-ink/40">
-                {new Date(order.createdAt).toLocaleString("en-US", {
-                  dateStyle: "medium",
-                  timeStyle: "short",
-                })}
-              </span>
-              <span className="font-bold text-brand">{formatPrice(order.totalPrice)}</span>
-            </div>
-          </div>
-        ))}
+      <div className="overflow-x-auto rounded-xl border border-surface-line bg-white">
+        <table className="w-full border-collapse text-left">
+          <thead>
+            <tr className="border-b border-surface-line bg-surface-muted/60">
+              <th className="whitespace-nowrap px-3 py-3 text-xs font-semibold text-ink/50">Date</th>
+              <th className="whitespace-nowrap px-3 py-3 text-xs font-semibold text-ink/50">Product</th>
+              <th className="whitespace-nowrap px-3 py-3 text-xs font-semibold text-ink/50">Customer</th>
+              <th className="whitespace-nowrap px-3 py-3 text-xs font-semibold text-ink/50">Phone</th>
+              <th className="whitespace-nowrap px-3 py-3 text-xs font-semibold text-ink/50">Address</th>
+              <th className="whitespace-nowrap px-3 py-3 text-xs font-semibold text-ink/50">Qty</th>
+              <th className="whitespace-nowrap px-3 py-3 text-xs font-semibold text-ink/50">Total</th>
+              <th className="whitespace-nowrap px-3 py-3 text-xs font-semibold text-ink/50">Support Mgr</th>
+              <th className="whitespace-nowrap px-3 py-3 text-xs font-semibold text-ink/50">Summary</th>
+              <th className="whitespace-nowrap px-3 py-3 text-xs font-semibold text-ink/50">Courier ID</th>
+              <th className="whitespace-nowrap px-3 py-3 text-xs font-semibold text-ink/50">Status</th>
+              <th className="whitespace-nowrap px-3 py-3 text-xs font-semibold text-ink/50"></th>
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-surface-line">
+            {allOrders.map((order) => (
+              <tr key={order.id} className="hover:bg-surface-muted/40">
+                <Cell muted>
+                  {new Date(order.createdAt).toLocaleString("en-US", {
+                    dateStyle: "medium",
+                    timeStyle: "short",
+                  })}
+                </Cell>
+                <Cell>
+                  <span className="font-medium text-ink">{order.productTitle}</span>
+                  <span className="text-ink/40"> · {order.size}/{order.color}</span>
+                </Cell>
+                <Cell>{order.customerName}</Cell>
+                <Cell>{order.customerPhone}</Cell>
+                <td className="max-w-56 truncate px-3 py-3 text-sm text-ink/80" title={order.customerAddress}>
+                  {order.customerAddress}
+                </td>
+                <Cell>{order.qty}</Cell>
+                <Cell>
+                  <span className="font-semibold text-ink">{formatPrice(order.totalPrice)}</span>
+                </Cell>
+                <Cell>{order.supportManager || null}</Cell>
+                <Cell>{order.summary || null}</Cell>
+                <Cell>{order.courierId || null}</Cell>
+                <td className="whitespace-nowrap px-3 py-3">
+                  <OrderStatusSelect
+                    status={order.status}
+                    action={updateOrderStatusAction.bind(null, order.id)}
+                  />
+                </td>
+                <td className="whitespace-nowrap px-3 py-3 text-right">
+                  <Link
+                    href={`/admin/orders/${order.id}`}
+                    className="rounded-lg border border-surface-line px-3 py-1.5 text-xs font-medium text-ink hover:bg-surface-muted"
+                  >
+                    View
+                  </Link>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
 
         {allOrders.length === 0 ? (
           <p className="py-12 text-center text-sm text-ink/50">No orders yet.</p>

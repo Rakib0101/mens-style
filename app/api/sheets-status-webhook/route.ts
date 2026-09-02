@@ -1,16 +1,24 @@
-import { getOrderById, updateOrderStatus } from "@/lib/orders";
+import { getOrderById, updateOrderSync, type OrderSyncFields } from "@/lib/orders";
 import type { OrderStatus } from "@/lib/db/schema";
 
 const VALID_STATUSES: OrderStatus[] = ["pending", "confirmed", "delivered", "cancelled"];
 
 /**
- * Called by the Google Apps Script's onEdit trigger when someone changes the
- * Status column in the order sheet — the reverse direction of the checkout
- * webhook. Only orders placed after the appOrderId column existed can be
- * matched; older rows have nothing to match against and are silently no-ops.
+ * Called by the Google Apps Script's onEdit trigger when someone edits the
+ * Status / Support Manager / Summary / Courier ID columns in the order sheet
+ * — the reverse direction of the checkout webhook. Only orders placed after
+ * the appOrderId column existed can be matched; older rows have nothing to
+ * match against and are silently no-ops.
  */
 export async function POST(request: Request) {
-  let payload: { secret?: string; appOrderId?: number; status?: string };
+  let payload: {
+    secret?: string;
+    appOrderId?: number;
+    status?: string;
+    supportManager?: string;
+    summary?: string;
+    courierId?: string;
+  };
 
   try {
     payload = await request.json();
@@ -24,10 +32,8 @@ export async function POST(request: Request) {
   }
 
   const appOrderId = Number(payload.appOrderId);
-  const status = String(payload.status || "").toLowerCase().trim() as OrderStatus;
-
-  if (!Number.isInteger(appOrderId) || !VALID_STATUSES.includes(status)) {
-    return Response.json({ error: "Invalid appOrderId or status." }, { status: 400 });
+  if (!Number.isInteger(appOrderId)) {
+    return Response.json({ error: "Invalid appOrderId." }, { status: 400 });
   }
 
   const order = await getOrderById(appOrderId);
@@ -36,6 +42,18 @@ export async function POST(request: Request) {
     return Response.json({ ok: true, matched: false });
   }
 
-  await updateOrderStatus(appOrderId, status);
+  // Every field is optional per-request — an edit to just the Courier ID
+  // column, say, shouldn't require (or be able to clobber) the others.
+  const fields: OrderSyncFields = {};
+  const status = String(payload.status || "").toLowerCase().trim() as OrderStatus;
+  if (VALID_STATUSES.includes(status)) fields.status = status;
+  if (typeof payload.supportManager === "string") fields.supportManager = payload.supportManager;
+  if (typeof payload.summary === "string") fields.summary = payload.summary;
+  if (typeof payload.courierId === "string") fields.courierId = payload.courierId;
+
+  if (Object.keys(fields).length > 0) {
+    await updateOrderSync(appOrderId, fields);
+  }
+
   return Response.json({ ok: true, matched: true });
 }

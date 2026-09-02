@@ -11,13 +11,14 @@
  * 3. Copy the deployment URL into GOOGLE_SHEETS_WEBHOOK_URL, and the same
  *    secret into GOOGLE_SHEETS_WEBHOOK_SECRET, in the Next.js app's env vars.
  *
- * Status sync (Sheet → dashboard) — optional, one-time setup:
+ * Sheet → dashboard sync — optional, one-time setup:
  * 4. Set APP_STATUS_WEBHOOK_URL below to your site's
  *    "https://<your-domain>/api/sheets-status-webhook" (staging or
  *    production — whichever URL you're editing the sheet against).
  * 5. Run `installEditTrigger` once (▶ button, pick this function). It asks
  *    for permission the first time — that's normal, this is what lets the
- *    script call out to the site when you edit the Status column.
+ *    script call out to the site when you edit the Status / Support Manager /
+ *    Summary / Courier ID columns.
  * 6. After pasting any code changes, redeploy: Deploy ➔ Manage deployments ➔
  *    the pencil icon ➔ Version: New version ➔ Deploy. Editing the code alone
  *    does not update the live webhook URL — this step does.
@@ -30,7 +31,11 @@ var SECRET = "mens_style_secret_key_2026";
 var APP_STATUS_WEBHOOK_URL = "https://YOUR-DOMAIN-HERE/api/sheets-status-webhook";
 
 var STATUS_COLUMN = 3; // C
+var SUPPORT_MANAGER_COLUMN = 4; // D
+var SUMMARY_COLUMN = 5; // E
+var COURIER_COLUMN = 6; // F
 var APP_ORDER_ID_COLUMN = 16; // P
+var WATCHED_COLUMNS = [STATUS_COLUMN, SUPPORT_MANAGER_COLUMN, SUMMARY_COLUMN, COURIER_COLUMN];
 
 function setSharedSecret() {
   PropertiesService.getScriptProperties().setProperty("SHARED_SECRET", SECRET);
@@ -53,12 +58,15 @@ function installEditTrigger() {
     .create();
 }
 
-// Fires on every edit to the sheet. Only acts when the Status column (C)
-// changed and the row has an App Order Id (P) to match against.
+// Fires on every edit to the sheet. Only acts when one of the watched
+// columns (Status / Support Manager / Summary / Courier ID) changed and the
+// row has an App Order Id (P) to match against. Always sends the row's
+// current values for all four so the app mirrors whatever is in the sheet,
+// regardless of which single column triggered the edit.
 function onEditInstallable(e) {
   try {
     if (!e || !e.range) return;
-    if (e.range.getColumn() !== STATUS_COLUMN) return;
+    if (WATCHED_COLUMNS.indexOf(e.range.getColumn()) === -1) return;
 
     var row = e.range.getRow();
     if (row === 1) return; // header row
@@ -67,8 +75,10 @@ function onEditInstallable(e) {
     var appOrderId = sheet.getRange(row, APP_ORDER_ID_COLUMN).getValue();
     if (!appOrderId) return; // row predates the sync, or wasn't linked
 
-    var status = normalizeStatus(e.range.getValue());
-    if (!status) return; // typed text didn't match a known status, ignore
+    var status = normalizeStatus(sheet.getRange(row, STATUS_COLUMN).getValue());
+    var supportManager = sheet.getRange(row, SUPPORT_MANAGER_COLUMN).getValue();
+    var summary = sheet.getRange(row, SUMMARY_COLUMN).getValue();
+    var courierId = sheet.getRange(row, COURIER_COLUMN).getValue();
 
     var secret = PropertiesService.getScriptProperties().getProperty("SHARED_SECRET") || SECRET;
 
@@ -78,7 +88,10 @@ function onEditInstallable(e) {
       payload: JSON.stringify({
         secret: secret,
         appOrderId: appOrderId,
-        status: status,
+        status: status, // may be null if the typed text didn't match a known status
+        supportManager: String(supportManager || ""),
+        summary: String(summary || ""),
+        courierId: String(courierId || ""),
       }),
       muteHttpExceptions: true,
     });

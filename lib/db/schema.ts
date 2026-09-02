@@ -77,6 +77,11 @@ export const orders = pgTable("orders", {
   })
     .notNull()
     .default("pending"),
+  // Synced one-way from the Google Sheet (Support Manager / Summary / Courier
+  // ID columns) — staff manage these in the Sheet, the app just mirrors them.
+  supportManager: text("support_manager").notNull().default(""),
+  summary: text("summary").notNull().default(""),
+  courierId: text("courier_id").notNull().default(""),
   createdAt: timestamp("created_at").notNull().defaultNow(),
 });
 

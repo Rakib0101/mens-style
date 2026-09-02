@@ -5,7 +5,7 @@ import { getAllProducts } from "@/lib/products";
 import { formatPrice } from "@/lib/format";
 import StatTile from "@/components/admin/StatTile";
 import OrdersBarChart from "@/components/admin/OrdersBarChart";
-import StatusBreakdown from "@/components/admin/StatusBreakdown";
+import OrderStatusDonut from "@/components/admin/OrderStatusDonut";
 import FulfillmentMeter from "@/components/admin/FulfillmentMeter";
 
 const STATUS_PILL: Record<string, string> = {
@@ -45,7 +45,7 @@ export default async function AdminOverviewPage() {
               delivered={stats.statusCounts.delivered}
               total={stats.totalOrders}
             />
-            <StatusBreakdown counts={stats.statusCounts} />
+            <OrderStatusDonut counts={stats.statusCounts} />
           </div>
         </div>
 
