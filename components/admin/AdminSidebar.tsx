@@ -7,7 +7,8 @@ import { logoutAction } from "@/app/admin/actions";
 import type { Role } from "@/lib/db/schema";
 
 const NAV_ITEMS = [
-  { href: "/admin", label: "Products", exact: true, adminOnly: false },
+  { href: "/admin", label: "Dashboard", exact: true, adminOnly: false },
+  { href: "/admin/products", label: "Products", exact: false, adminOnly: false },
   { href: "/admin/products/new", label: "Add product", exact: true, adminOnly: false },
   { href: "/admin/orders", label: "Orders", exact: false, adminOnly: false },
   { href: "/admin/users", label: "Users", exact: false, adminOnly: true },

@@ -241,7 +241,8 @@ export async function createProductAction(formData: FormData) {
   revalidatePath("/");
   revalidatePath("/products", "layout");
   revalidatePath("/admin");
-  redirect("/admin");
+  revalidatePath("/admin/products");
+  redirect("/admin/products");
 }
 
 export async function updateProductAction(id: number, formData: FormData) {
@@ -295,7 +296,8 @@ export async function updateProductAction(id: number, formData: FormData) {
   revalidatePath("/");
   revalidatePath("/products", "layout");
   revalidatePath("/admin");
-  redirect("/admin");
+  revalidatePath("/admin/products");
+  redirect("/admin/products");
 }
 
 export async function deleteProductAction(id: number) {
@@ -304,7 +306,8 @@ export async function deleteProductAction(id: number) {
   revalidatePath("/");
   revalidatePath("/products", "layout");
   revalidatePath("/admin");
-  redirect("/admin");
+  revalidatePath("/admin/products");
+  redirect("/admin/products");
 }
 
 export async function setFlagshipAction(id: number) {
@@ -315,7 +318,8 @@ export async function setFlagshipAction(id: number) {
   revalidatePath("/");
   revalidatePath("/products", "layout");
   revalidatePath("/admin");
-  redirect("/admin");
+  revalidatePath("/admin/products");
+  redirect("/admin/products");
 }
 
 export async function updateOrderStatusAction(id: number, formData: FormData) {
