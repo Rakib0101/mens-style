@@ -23,17 +23,6 @@ export async function updateOrderStatus(id: number, status: OrderStatus) {
   await getDb().update(orders).set({ status }).where(eq(orders.id, id));
 }
 
-export type OrderSyncFields = {
-  status?: OrderStatus;
-  supportManager?: string;
-  summary?: string;
-  courierId?: string;
-};
-
-export async function updateOrderSync(id: number, fields: OrderSyncFields) {
-  await getDb().update(orders).set(fields).where(eq(orders.id, id));
-}
-
 export type OrderStats = {
   totalOrders: number;
   totalRevenue: number;

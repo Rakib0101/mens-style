@@ -21,8 +21,8 @@ export default async function OrdersPage() {
     <div className="px-4 py-8 sm:px-8">
       <h1 className="mb-1 text-lg font-bold text-ink">Orders</h1>
       <p className="mb-6 max-w-2xl text-sm text-ink/50">
-        Google Sheets remains where you manage orders day-to-day. Status, Support Manager,
-        Summary and Courier ID here sync automatically from the Sheet.
+        Every order placed on the site lands here automatically. Update the status as you
+        process each one — this list is independent from Google Sheets.
       </p>
 
       <div className="overflow-x-auto rounded-xl border border-surface-line bg-white">
@@ -36,9 +36,6 @@ export default async function OrdersPage() {
               <th className="whitespace-nowrap px-3 py-3 text-xs font-semibold text-ink/50">Address</th>
               <th className="whitespace-nowrap px-3 py-3 text-xs font-semibold text-ink/50">Qty</th>
               <th className="whitespace-nowrap px-3 py-3 text-xs font-semibold text-ink/50">Total</th>
-              <th className="whitespace-nowrap px-3 py-3 text-xs font-semibold text-ink/50">Support Mgr</th>
-              <th className="whitespace-nowrap px-3 py-3 text-xs font-semibold text-ink/50">Summary</th>
-              <th className="whitespace-nowrap px-3 py-3 text-xs font-semibold text-ink/50">Courier ID</th>
               <th className="whitespace-nowrap px-3 py-3 text-xs font-semibold text-ink/50">Status</th>
               <th className="whitespace-nowrap px-3 py-3 text-xs font-semibold text-ink/50"></th>
             </tr>
@@ -65,9 +62,6 @@ export default async function OrdersPage() {
                 <Cell>
                   <span className="font-semibold text-ink">{formatPrice(order.totalPrice)}</span>
                 </Cell>
-                <Cell>{order.supportManager || null}</Cell>
-                <Cell>{order.summary || null}</Cell>
-                <Cell>{order.courierId || null}</Cell>
                 <td className="whitespace-nowrap px-3 py-3">
                   <OrderStatusSelect
                     status={order.status}
