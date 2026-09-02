@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { requireUser } from "@/lib/auth";
 import { getAllOrders } from "@/lib/orders";
-import { formatPrice } from "@/lib/format";
+import { formatPrice, formatDhakaDateTime } from "@/lib/format";
 import { updateOrderStatusAction } from "@/app/admin/actions";
 import OrderStatusSelect from "@/components/admin/OrderStatusSelect";
 
@@ -43,12 +43,7 @@ export default async function OrdersPage() {
           <tbody className="divide-y divide-surface-line">
             {allOrders.map((order) => (
               <tr key={order.id} className="hover:bg-surface-muted/40">
-                <Cell muted>
-                  {new Date(order.createdAt).toLocaleString("en-US", {
-                    dateStyle: "medium",
-                    timeStyle: "short",
-                  })}
-                </Cell>
+                <Cell muted>{formatDhakaDateTime(order.createdAt)}</Cell>
                 <Cell>
                   <span className="font-medium text-ink">{order.productTitle}</span>
                   <span className="text-ink/40"> · {order.size}/{order.color}</span>

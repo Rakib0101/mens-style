@@ -2,7 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { requireUser } from "@/lib/auth";
 import { getOrderById } from "@/lib/orders";
-import { formatPrice } from "@/lib/format";
+import { formatPrice, formatDhakaDateTime } from "@/lib/format";
 import { updateOrderStatusAction } from "@/app/admin/actions";
 import OrderStatusSelect from "@/components/admin/OrderStatusSelect";
 
@@ -43,11 +43,7 @@ export default async function OrderDetailPage({
         <section className="mb-5 rounded-xl border border-surface-line bg-white p-6">
           <h2 className="mb-1 font-bold text-ink">{order.productTitle}</h2>
           <p className="mb-4 text-sm text-ink/50">
-            Placed{" "}
-            {new Date(order.createdAt).toLocaleString("en-US", {
-              dateStyle: "medium",
-              timeStyle: "short",
-            })}
+            Placed {formatDhakaDateTime(order.createdAt)}
           </p>
           <div className="divide-y divide-surface-line">
             <Row label="Size" value={order.size} />
