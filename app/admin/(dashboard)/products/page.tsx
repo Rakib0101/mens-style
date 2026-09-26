@@ -1,6 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
-import { getAllProducts } from "@/lib/products";
+import { getAllProducts, getProductUrl } from "@/lib/products";
 import { formatPrice } from "@/lib/format";
 import { deleteProductAction, setFlagshipAction } from "@/app/admin/actions";
 import ConfirmSubmitButton from "@/components/admin/ConfirmSubmitButton";
@@ -49,6 +49,14 @@ export default async function AdminDashboardPage() {
                   ) : null}
                 </div>
                 <p className="text-sm text-ink/60">{formatPrice(product.price)}</p>
+                <a
+                  href={getProductUrl(product)}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="truncate text-xs text-ink/40 hover:text-brand hover:underline"
+                >
+                  {getProductUrl(product)}
+                </a>
               </div>
 
               <div className="flex shrink-0 items-center gap-2">
@@ -62,6 +70,20 @@ export default async function AdminDashboardPage() {
                     </button>
                   </form>
                 ) : null}
+                <a
+                  href={getProductUrl(product)}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="rounded-lg border border-surface-line px-3 py-1.5 text-xs font-medium text-ink/70 hover:bg-surface-muted"
+                >
+                  Preview ↗
+                </a>
+                <Link
+                  href={`/admin/products/${product.id}`}
+                  className="rounded-lg border border-surface-line px-3 py-1.5 text-xs font-medium text-ink/70 hover:bg-surface-muted"
+                >
+                  View
+                </Link>
                 <Link
                   href={`/admin/products/${product.id}/edit`}
                   className="rounded-lg border border-surface-line px-3 py-1.5 text-xs font-medium text-ink hover:bg-surface-muted"

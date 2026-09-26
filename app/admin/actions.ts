@@ -8,6 +8,7 @@ import { getDb } from "@/lib/db";
 import { products, users, type OrderStatus } from "@/lib/db/schema";
 import { updateOrderStatus } from "@/lib/orders";
 import { updateSiteSettings } from "@/lib/settings";
+import { uniqueProductSlug } from "@/lib/slug";
 import {
   createSession,
   destroySession,
@@ -124,16 +125,6 @@ export async function changePasswordAction(formData: FormData) {
   redirect("/admin/settings?pwsuccess=1");
 }
 
-function slugify(title: string) {
-  return (
-    title
-      .toLowerCase()
-      .trim()
-      .replace(/[^\p{L}\p{N}]+/gu, "-")
-      .replace(/^-+|-+$/g, "") || `product-${Date.now()}`
-  );
-}
-
 async function uploadNewImages(files: FormDataEntryValue[]) {
   const urls: string[] = [];
   for (const file of files) {
@@ -244,7 +235,7 @@ export async function createProductAction(formData: FormData) {
   const fields = readProductFields(formData);
   const newImages = await uploadNewImages(formData.getAll("images"));
   const qualityBannerImage = await uploadSingleImage(formData.get("qualityBannerImage"), "");
-  const slug = slugify(fields.title);
+  const slug = await uniqueProductSlug(fields.title);
 
   if (fields.isFlagship) {
     await db.update(products).set({ isFlagship: false }).where(eq(products.isFlagship, true));

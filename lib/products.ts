@@ -34,3 +34,8 @@ export async function getProductBySlug(slug: string): Promise<Product | null> {
   const rows = await getDb().select().from(products).where(eq(products.slug, slug)).limit(1);
   return rows[0] ?? null;
 }
+
+/** The flagship shows at "/"; every other product gets its own /products/[slug] page. */
+export function getProductUrl(product: Pick<Product, "slug" | "isFlagship">) {
+  return product.isFlagship ? "/" : `/products/${product.slug}`;
+}
