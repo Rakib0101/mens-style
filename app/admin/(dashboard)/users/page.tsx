@@ -2,6 +2,7 @@ import { requireAdminRole } from "@/lib/auth";
 import { getAllUsers } from "@/lib/users";
 import { createUserAction, deleteUserAction } from "@/app/admin/actions";
 import ConfirmSubmitButton from "@/components/admin/ConfirmSubmitButton";
+import PasswordInput from "@/components/admin/PasswordInput";
 
 const ERROR_MESSAGES: Record<string, string> = {
   missing: "Username and password are required.",
@@ -75,10 +76,10 @@ export default async function UsersPage({
               <label className="mb-1.5 block text-xs font-semibold text-ink/70">
                 Password
               </label>
-              <input
+              <PasswordInput
                 name="password"
-                type="password"
                 required
+                autoComplete="new-password"
                 className="w-full rounded-lg border border-surface-line px-3.5 py-2.5 text-sm outline-none focus:border-ink"
               />
             </div>

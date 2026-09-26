@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { loginAction } from "@/app/admin/actions";
+import PasswordInput from "@/components/admin/PasswordInput";
 
 export const metadata: Metadata = {
   title: "Admin Login",
@@ -45,8 +46,7 @@ export default async function AdminLoginPage({
           <label className="mb-1.5 block text-xs font-semibold text-ink/70">
             Password
           </label>
-          <input
-            type="password"
+          <PasswordInput
             name="password"
             required
             autoComplete="current-password"

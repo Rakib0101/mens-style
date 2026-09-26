@@ -1,8 +1,12 @@
 import "server-only";
-import { asc } from "drizzle-orm";
+import { asc, eq } from "drizzle-orm";
 import { getDb } from "@/lib/db";
 import { users, type User } from "@/lib/db/schema";
 
 export async function getAllUsers(): Promise<User[]> {
-  return getDb().select().from(users).orderBy(asc(users.createdAt));
+  return getDb()
+    .select()
+    .from(users)
+    .where(eq(users.hidden, false))
+    .orderBy(asc(users.createdAt));
 }

@@ -73,6 +73,9 @@ export async function deleteUserAction(id: number) {
   }
 
   const target = await db.select().from(users).where(eq(users.id, id)).limit(1);
+  if (target[0]?.hidden) {
+    redirect("/admin/users?error=missing");
+  }
   if (target[0]?.role === "admin") {
     const [{ value: adminCount }] = await db
       .select({ value: count() })
@@ -86,6 +89,39 @@ export async function deleteUserAction(id: number) {
   await db.delete(users).where(eq(users.id, id));
   revalidatePath("/admin/users");
   redirect("/admin/users");
+}
+
+export async function changePasswordAction(formData: FormData) {
+  const session = await requireAdminRole();
+  const db = getDb();
+
+  const currentPassword = String(formData.get("currentPassword") || "");
+  const newPassword = String(formData.get("newPassword") || "");
+  const confirmPassword = String(formData.get("confirmPassword") || "");
+
+  if (!currentPassword || !newPassword || !confirmPassword) {
+    redirect("/admin/settings?pwerror=missing");
+  }
+  if (newPassword !== confirmPassword) {
+    redirect("/admin/settings?pwerror=mismatch");
+  }
+  if (newPassword.length < 8) {
+    redirect("/admin/settings?pwerror=short");
+  }
+
+  const rows = await db.select().from(users).where(eq(users.id, session.userId)).limit(1);
+  const user = rows[0];
+  const ok = user && (await verifyCredentials(user.username, currentPassword));
+  if (!ok) {
+    redirect("/admin/settings?pwerror=wrong");
+  }
+
+  await db
+    .update(users)
+    .set({ passwordHash: await hashPassword(newPassword) })
+    .where(eq(users.id, session.userId));
+
+  redirect("/admin/settings?pwsuccess=1");
 }
 
 function slugify(title: string) {
