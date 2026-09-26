@@ -46,7 +46,7 @@ export default function Hero({ product: p }: { product: Product }) {
 
 					<a
 						href="#order"
-						className="mt-5 inline-block rounded-xs bg-brand px-6 py-2.5 text-xs sm:text-sm font-semibold text-white shadow-md transition-colors hover:bg-brand-dark"
+						className="mt-6 inline-block rounded-xs bg-brand px-10 py-4 text-base sm:mt-8 sm:px-14 sm:py-5 sm:text-xl md:text-2xl font-bold text-white shadow-lg transition-colors hover:bg-brand-dark"
 					>
 						{p.heroCtaLabel}
 					</a>

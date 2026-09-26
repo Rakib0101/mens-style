@@ -31,7 +31,7 @@ export default function Header() {
 
 				<a
 					href="#order"
-					className="shrink-0 rounded-none bg-brand px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-brand-dark"
+					className="shrink-0 rounded-none bg-brand px-6 py-3.5 text-base font-bold text-white transition-colors hover:bg-brand-dark sm:px-8 sm:py-4 sm:text-lg"
 				>
 					{content.ctaLabel}
 				</a>
